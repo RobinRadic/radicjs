@@ -1,0 +1,9 @@
+{
+  "generator-radic": {
+    "appname": "radicjs",
+    "type": "node",
+    "generated": [
+      "project"
+    ]
+  }
+}
