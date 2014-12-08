@@ -4044,12 +4044,12 @@ var _each = function(arr, iterator) {
 
     radic.github.syncRequest = function (uri) {
 
-        github.transport.async = false;
-        var base = github.transport.base;
-        github.transport.base = base + uri;
-        var responseText = github.transport.send();
-        github.transport.async = true;
-        github.transport.base = base;
+        radic.github.transport.async = false;
+        var base = radic.github.transport.base;
+        radic.github.transport.base = base + uri;
+        var responseText = radic.github.transport.send();
+        radic.github.transport.async = true;
+        radic.github.transport.base = base;
         return responseText;
     };
 
@@ -4068,7 +4068,7 @@ var _each = function(arr, iterator) {
 
         var response = JSON.parse(radic.github.syncRequest(uri));
 
-        radic.storage.set(uri, reponse, {
+        radic.storage.set(uri, response, {
             json: true,
             expires: options.expires
         });
