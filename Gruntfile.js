@@ -160,7 +160,7 @@ module.exports = function (grunt) {
         },
         shell: {
             lodash: {
-                command: 'lodash underscore include=<%= config.build.lodash.join(\',\') %> exports=none -o src/tpl/_lodash.js'
+                command: 'lodash underscore include=<%= radicjs.lodash %> exports=none -o src/tpl/_lodash.js'
             },
             test: {
                 command: 'nodeunit test/*.js'
@@ -195,7 +195,7 @@ module.exports = function (grunt) {
     grunt.loadTasks("tasks");
 
 
-    grunt.registerTask('lodash', [
+    grunt.registerTask('lodash:radicjs', [
         'shell:lodash',
         'preprocess:lodash',
         'string-replace:lodash',
@@ -228,11 +228,17 @@ module.exports = function (grunt) {
             var cfg = config.builds[build];
             var task = 'build:*:+' + cfg.modules.join(':+');
 
+            var ignoredeps = grunt.option('ignoredeps').split(',') || cfg.ignoredeps || [];
             var packer = {};
-            _.each(config.modules_external_deps, function (module, name) {
-                if(cfg.modules.indexOf(name) > -1){
+            _.each(config.modules_external_deps, function (name, module) {
+                if (cfg.modules.indexOf(module) > -1) {
+                    if (ignoredeps.indexOf(module) === -1) {
+                        packer[name.toUpperCase()] = true;
+                    }
+                } else {
                     packer[name.toUpperCase()] = true;
                 }
+
                 //grunt.log.writeln('modules_external_deps:name ' + name);
                 //grunt.log.writeln('modules_external_deps:i ' + i);
             });
@@ -240,10 +246,11 @@ module.exports = function (grunt) {
             grunt.config.set('radicjs', {
                 filename: grunt.option('filename') || cfg.filename,
                 build: build,
-                packer: packer
+                packer: packer,
+                lodash: cfg.lodash.join(',')
             });
 
-            grunt.task.run([task, 'uglify:radicjs', 'string-replace:packer', 'copy:packer', 'preprocess:packer', 'uglify:packer', 'clean:packer']);
+            grunt.task.run(['lodash:radicjs', task, 'uglify:radicjs', 'string-replace:packer', 'copy:packer', 'preprocess:packer', 'uglify:packer', 'clean:packer']);
 
             grunt.log.writeln('build: ' + build);
             grunt.log.writeln('task: ' + task);

@@ -16,11 +16,17 @@
 // @endif
 
 // @ifdef OAUTHIO
-// @include ../test/vendor/oauth.io/dist/oauth.js
+// @include ../test/vendor/oauth.io/dist/oauth.min.js
 // @endif
 
 //@ifdef SPINNER
 // @include ../test/vendor/spinjs/spin.js
 //@endif
+
+if(typeof $.widget === 'undefined') {
+//@ifdef WIDGETFACTORY
+// @include ../test/vendor/jquery-ui/ui/widget.js
+//@endif
+}
 
 //@include _FILENAME_

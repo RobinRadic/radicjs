@@ -20,7 +20,7 @@ define([
         }
         if(options.expires){
             var now = Math.floor((Date.now() / 1000) / 60);
-            window['localStorage'].setItem(key + ':expire', now + expire);
+            window['localStorage'].setItem(key + ':expire', now + options.expire);
         }
         window['localStorage'].setItem(key, val);
     };
