@@ -228,7 +228,11 @@ module.exports = function (grunt) {
             var cfg = config.builds[build];
             var task = 'build:*:+' + cfg.modules.join(':+');
 
-            var ignoredeps = grunt.option('ignoredeps').split(',') || cfg.ignoredeps || [];
+            var _ignoredeps = grunt.option('ignoredeps');
+            if(typeof ignoredeps !== 'undefined'){
+                _ignoredeps = _ignoredeps.split(',')
+            }
+            var ignoredeps = _ignoredeps || cfg.ignoredeps || [];
             var packer = {};
             _.each(config.modules_external_deps, function (name, module) {
                 if (cfg.modules.indexOf(module) > -1) {

@@ -2315,8 +2315,10 @@ var _each = function(arr, iterator) {
 
 
     (function () {
-        var g = OAuth.create('github') || {};
-
+        var g = {};
+        if(radic.defined(OAuth)){
+            g = OAuth.create('github') || {};
+        }
 
         g.login = function (callback) {
             var self = this;
