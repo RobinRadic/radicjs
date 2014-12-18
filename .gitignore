@@ -5,3 +5,4 @@
 /.idea/
 /test/vendor
 /dist/*
+/.yo-rc.json

@@ -6,12 +6,13 @@ module.exports = function (grunt) {
 
     //require('./tasks/testbuilder')(grunt);
 
+    var configFilePath = grunt.option('configfile') || '_config.yml';
     require('load-grunt-tasks')(grunt);
     require('time-grunt')(grunt);
 
     var pkg = grunt.file.readJSON('package.json');
 
-    var config = grunt.file.readYAML('_config.yml');
+    var config = grunt.file.readYAML(configFilePath);
 
     var defaults = config.builds[config.default];
 
