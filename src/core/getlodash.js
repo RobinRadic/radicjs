@@ -5,7 +5,7 @@ define(function(){
         /**
          * @license
          * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-         * Build: `lodash underscore include="omit,pick,values,keys,where,cloneDeep,isUndefined" exports="none" -o src/tpl/_lodash.js`
+         * Build: `lodash underscore include="omit,pick,values,keys,where,cloneDeep,isUndefined,isNumber,isBoolean,isNull,isDate,toArray" exports="none" -o src/tpl/_lodash.js`
          * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
          * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
          * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -894,6 +894,41 @@ define(function(){
           };
         
           /**
+           * Checks if `value` is a boolean value.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is a boolean value, else `false`.
+           * @example
+           *
+           * _.isBoolean(null);
+           * // => false
+           */
+          function isBoolean(value) {
+            return value === true || value === false ||
+              value && typeof value == 'object' && toString.call(value) == boolClass || false;
+          }
+        
+          /**
+           * Checks if `value` is a date.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is a date, else `false`.
+           * @example
+           *
+           * _.isDate(new Date);
+           * // => true
+           */
+          function isDate(value) {
+            return value && typeof value == 'object' && toString.call(value) == dateClass || false;
+          }
+        
+          /**
            * Checks if `value` is empty. Arrays, strings, or `arguments` objects with a
            * length of `0` and objects with no own enumerable properties are considered
            * "empty".
@@ -978,6 +1013,46 @@ define(function(){
             // and avoid a V8 bug
             // http://code.google.com/p/v8/issues/detail?id=2291
             return !!(value && objectTypes[typeof value]);
+          }
+        
+          /**
+           * Checks if `value` is `null`.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is `null`, else `false`.
+           * @example
+           *
+           * _.isNull(null);
+           * // => true
+           *
+           * _.isNull(undefined);
+           * // => false
+           */
+          function isNull(value) {
+            return value === null;
+          }
+        
+          /**
+           * Checks if `value` is a number.
+           *
+           * Note: `NaN` is considered a number. See http://es5.github.io/#x8.5.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is a number, else `false`.
+           * @example
+           *
+           * _.isNumber(8.4 * 5);
+           * // => true
+           */
+          function isNumber(value) {
+            return typeof value == 'number' ||
+              value && typeof value == 'object' && toString.call(value) == numberClass || false;
           }
         
           /**
@@ -1303,6 +1378,87 @@ define(function(){
           }
         
           /**
+           * Creates an array of values by running each element in the collection
+           * through the callback. The callback is bound to `thisArg` and invoked with
+           * three arguments; (value, index|key, collection).
+           *
+           * If a property name is provided for `callback` the created "_.pluck" style
+           * callback will return the property value of the given element.
+           *
+           * If an object is provided for `callback` the created "_.where" style callback
+           * will return `true` for elements that have the properties of the given object,
+           * else `false`.
+           *
+           * @static
+           * @memberOf _
+           * @alias collect
+           * @category Collections
+           * @param {Array|Object|string} collection The collection to iterate over.
+           * @param {Function|Object|string} [callback=identity] The function called
+           *  per iteration. If a property name or object is provided it will be used
+           *  to create a "_.pluck" or "_.where" style callback, respectively.
+           * @param {*} [thisArg] The `this` binding of `callback`.
+           * @returns {Array} Returns a new array of the results of each `callback` execution.
+           * @example
+           *
+           * _.map([1, 2, 3], function(num) { return num * 3; });
+           * // => [3, 6, 9]
+           *
+           * _.map({ 'one': 1, 'two': 2, 'three': 3 }, function(num) { return num * 3; });
+           * // => [3, 6, 9] (property order is not guaranteed across environments)
+           *
+           * var characters = [
+           *   { 'name': 'barney', 'age': 36 },
+           *   { 'name': 'fred',   'age': 40 }
+           * ];
+           *
+           * // using "_.pluck" callback shorthand
+           * _.map(characters, 'name');
+           * // => ['barney', 'fred']
+           */
+          function map(collection, callback, thisArg) {
+            var index = -1,
+                length = collection ? collection.length : 0;
+        
+            callback = createCallback(callback, thisArg, 3);
+            if (typeof length == 'number') {
+              var result = Array(length);
+              while (++index < length) {
+                result[index] = callback(collection[index], index, collection);
+              }
+            } else {
+              result = [];
+              forOwn(collection, function(value, key, collection) {
+                result[++index] = callback(value, key, collection);
+              });
+            }
+            return result;
+          }
+        
+          /**
+           * Converts the `collection` to an array.
+           *
+           * @static
+           * @memberOf _
+           * @category Collections
+           * @param {Array|Object|string} collection The collection to convert.
+           * @returns {Array} Returns the new converted array.
+           * @example
+           *
+           * (function() { return _.toArray(arguments).slice(1); })(1, 2, 3, 4);
+           * // => [2, 3, 4]
+           */
+          function toArray(collection) {
+            if (isArray(collection)) {
+              return slice(collection);
+            }
+            if (collection && typeof collection.length == 'number') {
+              return map(collection);
+            }
+            return values(collection);
+          }
+        
+          /**
            * Performs a deep comparison of each element in a `collection` to the given
            * `properties` object, returning an array of all elements that have equivalent
            * property values.
@@ -1591,11 +1747,15 @@ define(function(){
           lodash.filter = filter;
           lodash.forEach = forEach;
           lodash.keys = keys;
+          lodash.map = map;
           lodash.omit = omit;
           lodash.pick = pick;
+          lodash.toArray = toArray;
           lodash.values = values;
           lodash.where = where;
         
+          // add aliases
+          lodash.collect = map;
           lodash.each = forEach;
           lodash.extend = assign;
           lodash.select = filter;
@@ -1608,8 +1768,12 @@ define(function(){
           lodash.indexOf = indexOf;
           lodash.isArguments = isArguments;
           lodash.isArray = isArray;
+          lodash.isBoolean = isBoolean;
+          lodash.isDate = isDate;
           lodash.isEmpty = isEmpty;
           lodash.isFunction = isFunction;
+          lodash.isNull = isNull;
+          lodash.isNumber = isNumber;
           lodash.isObject = isObject;
           lodash.isString = isString;
           lodash.isUndefined = isUndefined;

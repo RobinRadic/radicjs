@@ -18,7 +18,7 @@
         /**
          * @license
          * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-         * Build: `lodash underscore include="omit,pick,values,keys,where,cloneDeep,isUndefined" exports="none" -o src/tpl/_lodash.js`
+         * Build: `lodash underscore include="omit,pick,values,keys,where,cloneDeep,isUndefined,isNumber,isBoolean,isNull,isDate,toArray" exports="none" -o src/tpl/_lodash.js`
          * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
          * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
          * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -907,6 +907,41 @@
           };
         
           /**
+           * Checks if `value` is a boolean value.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is a boolean value, else `false`.
+           * @example
+           *
+           * _.isBoolean(null);
+           * // => false
+           */
+          function isBoolean(value) {
+            return value === true || value === false ||
+              value && typeof value == 'object' && toString.call(value) == boolClass || false;
+          }
+        
+          /**
+           * Checks if `value` is a date.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is a date, else `false`.
+           * @example
+           *
+           * _.isDate(new Date);
+           * // => true
+           */
+          function isDate(value) {
+            return value && typeof value == 'object' && toString.call(value) == dateClass || false;
+          }
+        
+          /**
            * Checks if `value` is empty. Arrays, strings, or `arguments` objects with a
            * length of `0` and objects with no own enumerable properties are considered
            * "empty".
@@ -991,6 +1026,46 @@
             // and avoid a V8 bug
             // http://code.google.com/p/v8/issues/detail?id=2291
             return !!(value && objectTypes[typeof value]);
+          }
+        
+          /**
+           * Checks if `value` is `null`.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is `null`, else `false`.
+           * @example
+           *
+           * _.isNull(null);
+           * // => true
+           *
+           * _.isNull(undefined);
+           * // => false
+           */
+          function isNull(value) {
+            return value === null;
+          }
+        
+          /**
+           * Checks if `value` is a number.
+           *
+           * Note: `NaN` is considered a number. See http://es5.github.io/#x8.5.
+           *
+           * @static
+           * @memberOf _
+           * @category Objects
+           * @param {*} value The value to check.
+           * @returns {boolean} Returns `true` if the `value` is a number, else `false`.
+           * @example
+           *
+           * _.isNumber(8.4 * 5);
+           * // => true
+           */
+          function isNumber(value) {
+            return typeof value == 'number' ||
+              value && typeof value == 'object' && toString.call(value) == numberClass || false;
           }
         
           /**
@@ -1316,6 +1391,87 @@
           }
         
           /**
+           * Creates an array of values by running each element in the collection
+           * through the callback. The callback is bound to `thisArg` and invoked with
+           * three arguments; (value, index|key, collection).
+           *
+           * If a property name is provided for `callback` the created "_.pluck" style
+           * callback will return the property value of the given element.
+           *
+           * If an object is provided for `callback` the created "_.where" style callback
+           * will return `true` for elements that have the properties of the given object,
+           * else `false`.
+           *
+           * @static
+           * @memberOf _
+           * @alias collect
+           * @category Collections
+           * @param {Array|Object|string} collection The collection to iterate over.
+           * @param {Function|Object|string} [callback=identity] The function called
+           *  per iteration. If a property name or object is provided it will be used
+           *  to create a "_.pluck" or "_.where" style callback, respectively.
+           * @param {*} [thisArg] The `this` binding of `callback`.
+           * @returns {Array} Returns a new array of the results of each `callback` execution.
+           * @example
+           *
+           * _.map([1, 2, 3], function(num) { return num * 3; });
+           * // => [3, 6, 9]
+           *
+           * _.map({ 'one': 1, 'two': 2, 'three': 3 }, function(num) { return num * 3; });
+           * // => [3, 6, 9] (property order is not guaranteed across environments)
+           *
+           * var characters = [
+           *   { 'name': 'barney', 'age': 36 },
+           *   { 'name': 'fred',   'age': 40 }
+           * ];
+           *
+           * // using "_.pluck" callback shorthand
+           * _.map(characters, 'name');
+           * // => ['barney', 'fred']
+           */
+          function map(collection, callback, thisArg) {
+            var index = -1,
+                length = collection ? collection.length : 0;
+        
+            callback = createCallback(callback, thisArg, 3);
+            if (typeof length == 'number') {
+              var result = Array(length);
+              while (++index < length) {
+                result[index] = callback(collection[index], index, collection);
+              }
+            } else {
+              result = [];
+              forOwn(collection, function(value, key, collection) {
+                result[++index] = callback(value, key, collection);
+              });
+            }
+            return result;
+          }
+        
+          /**
+           * Converts the `collection` to an array.
+           *
+           * @static
+           * @memberOf _
+           * @category Collections
+           * @param {Array|Object|string} collection The collection to convert.
+           * @returns {Array} Returns the new converted array.
+           * @example
+           *
+           * (function() { return _.toArray(arguments).slice(1); })(1, 2, 3, 4);
+           * // => [2, 3, 4]
+           */
+          function toArray(collection) {
+            if (isArray(collection)) {
+              return slice(collection);
+            }
+            if (collection && typeof collection.length == 'number') {
+              return map(collection);
+            }
+            return values(collection);
+          }
+        
+          /**
            * Performs a deep comparison of each element in a `collection` to the given
            * `properties` object, returning an array of all elements that have equivalent
            * property values.
@@ -1604,11 +1760,15 @@
           lodash.filter = filter;
           lodash.forEach = forEach;
           lodash.keys = keys;
+          lodash.map = map;
           lodash.omit = omit;
           lodash.pick = pick;
+          lodash.toArray = toArray;
           lodash.values = values;
           lodash.where = where;
         
+          // add aliases
+          lodash.collect = map;
           lodash.each = forEach;
           lodash.extend = assign;
           lodash.select = filter;
@@ -1621,8 +1781,12 @@
           lodash.indexOf = indexOf;
           lodash.isArguments = isArguments;
           lodash.isArray = isArray;
+          lodash.isBoolean = isBoolean;
+          lodash.isDate = isDate;
           lodash.isEmpty = isEmpty;
           lodash.isFunction = isFunction;
+          lodash.isNull = isNull;
+          lodash.isNumber = isNumber;
           lodash.isObject = isObject;
           lodash.isString = isString;
           lodash.isUndefined = isUndefined;
@@ -1861,493 +2025,326 @@ var _each = function(arr, iterator) {
     });
 
 
-    var github = (function(GithubClient){
-
-        return new GithubClient('06ec61fd2853f215bb01f7c5b2e0f56ff8537838'); //'e243a6a733de08c8dfd37e86abd7d2a3b82784de');
-
-    })(function(global, githubRoutes){
-        
-
-        // ###########################
-        // ### Helpers and globals ###
-        // ###########################
-
-        var FP = Function.prototype,
-            AP = Array.prototype,
-            OP = Object.prototype;
-
-        var bindbind   = FP.bind.bind(FP.bind),
-            callbind   = bindbind(FP.bind),
-            applybind  = bindbind(FP.apply);
-
-        var has        = callbind(OP.hasOwnProperty),
-            slice      = callbind(AP.slice),
-            flatten    = applybind(AP.concat, []);
-
-        var filter_    = AP.filter,
-            map_       = AP.map,
-            push_      = AP.push,
-            slice_     = AP.slice;
-
-
-        function decorate(o){
-            var b, c, d;
-            for (var i=1; b = arguments[i]; i++) {
-                for (c in b) {
-                    if (d = Object.getOwnPropertyDescriptor(b, c)) {
-                        if (d.get || d.set) {
-                            Object.defineProperty(o, c, d);
-                        } else {
-                            o[c] = d.value;
-                        }
-                    }
-                }
-            }
-            return o;
-        }
-
-        function isObject(o){
-            return o != null && typeof o === 'object' || typeof o === 'function';
-        }
-
-        function isIndexed(o){
-            return Array.isArray(o) || isObject(o) && has(o, 'length') && has(o, o.length - 1);
-        }
-
-        // ############
-        // ### Path ###
-        // ############
-
-        function Path(a){
-            if (isIndexed(a)) {
-                push_.apply(this, a);
-            }
-        }
-
-        Path.prototype.length = 0;
-
-        decorate(Path.prototype, {
-            join: Array.prototype.join,
-            map: Array.prototype.map,
-            concat: function concat(){
-                var out = new Path(this);
-                push_.apply(out, arguments);
-                return out;
-            },
-            args: function args(){
-                return filter_.call(this, function(s){
-                    return s[0] === 'Δ';
-                }).map(function(s){
-                    return s.replace(/Δ/g, '');
-                });
-            },
-            toName: function toName(slice, last){
-                var array = map_.call(this, function(s){
-                    return s.replace(/Δ/g, '');
-                });
-
-                if (last) {
-                    array.push(last);
-                }
-
-                var out = array.slice(slice || 1).map(function(s){
-                    return s[0].toUpperCase() + s.slice(1).toLowerCase();
-                });
-
-                if (!out[0]) {
-                    return '';
-                } else {
-                    out[0] = out[0].toLowerCase();
-                    return out.join('').replace(/_(.)/g, function(s){
-                        return s[1].toUpperCase();
-                    });
-                }
-            },
-            slice: function slice(){
-                return new Path(slice_.apply(this, arguments));
-            }
-        });
-
-
-        // #################
-        // ### Transport ###
-        // #################
-
-        // superclass for XHR and JSONP
-
-        function Transport(options, callback){
-            options = options || {};
-            if (typeof options === 'string') {
-                options = { url: options };
-            }
-            if (typeof callback === 'function') {
-                options.callback = callback;
-            }
-            this.data = options.data || {};
-            this.path = options.path || [];
-            this.base = options.url;
-            this.callback = options.callback || function(){};
-            this.state = 'idle';
-        }
-
-        Transport.transports = {};
-
-        decorate(Transport, {
-            register: function register(ctor){
-                Transport.transports[ctor.name.toLowerCase()] = ctor;
-            },
-            lookup: function lookup(name){
-                name = name.toLowerCase();
-                return name in Transport.transports ? Transport.transports[name] : null;
-            },
-            create: function create(type, base, dispatcher){
-                var T = Transport.lookup(type);
-                return new T(base, dispatcher);
-            }
-        });
-
-
-        decorate(Transport.prototype, {
-            params: function params(){
-                var data = Object.keys(this.data).map(function(name){ return [name, this.data[name]] }, this);
-                data.push([this.callbackParam, this.callbackName]);
-                return data.map(function(item){
-                    return encodeURIComponent(item[0]) + '=' + encodeURIComponent(item[1]);
-                }).join('&');
-            }
-        });
-
-        // #######################
-        // ### JSONP Transport ###
-        // #######################
-
-        function JSONP(options, callback){
-            Transport.call(this, options = options || {}, callback);
-            this.callbackParam = options.callbackParam || 'callback';
-            this.callbackName = options.callbackName || '_'+Math.random().toString(36).slice(2);
-        }
-
-        Transport.register(JSONP);
-
-        JSONP.prototype = Object.create(Transport.prototype);
-        decorate(JSONP.prototype, {
-            constructor: JSONP,
-            url: function url(){
-                return [this.base].concat(this.path).join('/') + '?' + this.params();
-            },
-            send: function send(callback){
-                var script = document.createElement('script'),
-                    completed
-
-                callback = callback || this.callback;
-
-                function complete(state, result){
-                    if (!completed) {
-                        completed = true;
-                        delete window[this.callbackName];
-                        document.body.removeChild(script);
-                        this.state = state;
-                        callback.call(this, result);
-                    }
-                }
-
-                script.src = this.url();
-                script.async = script.defer = true;
-                script.onerror = complete.bind(this, 'error');
-                window[this.callbackName] = complete.bind(this, 'success');
-
-                document.body.appendChild(script);
-                this.state = 'loading';
-                return this;
-            }
-        });
-
-        // ################################
-        // ### XMLHttpRequest Transport ###
-        // ################################
-
-        function XHR(options, callback){
-            this.headers = {};
-            options = options || {}
-
-            Transport.call(this, options, callback);
-
-            if (options.headers) {
-                Object.keys(options.headers).forEach(function(n){
-                    this[n] = options.headers[n];
-                }, this.headers);
-            }
-        }
-
-        Transport.register(XHR);
-
-        XHR.prototype = Object.create(Transport.prototype);
-        decorate(XHR.prototype, {
-            constructor: XHR,
-            async: true,
-            url: function url(){
-                var params = this.params();
-                return [this.base].concat(this.path).join('/') + (this.verb === 'get' && params ? '?' + params : '');
-            },
-            auth: function auth(user, pass){
-                if (!pass && user.length === 40) {
-                    this.headers.Authorization = 'token '+user;
-                } else {
-                    this.headers.Authorization = 'Basic '+btoa(user+':'+pass);
-                }
-            },
-            send: function send(callback, verb){
-                var xhr = new XMLHttpRequest,
-                    self = this;
-
-                if (typeof callback !== 'function') {
-                    verb = callback;
-                    callback = this.callback;
-                }
-
-                function complete(data){
-                    if (xhr.readyState === 4) {
-                        self.state = 'complete';
-                        callback.call(self, JSON.parse(xhr.responseText));
-                    }
-                }
-
-                xhr.open(verb || 'GET', this.url(), this.async);
-                if (this.headers.Authenticate) {
-                    xhr.withCredentials = true;
-                }
-
-                Object.keys(this.headers).forEach(function(name){
-                    xhr.setRequestHeader(name, self.headers[name]);
-                });
-
-                xhr.onerror = complete;
-                xhr.onload = complete;
-
-                xhr.send(this.data ||  null);
-                this.state = 'loading';
-                return this.async === true ?  this : xhr.responseText;
-            }
-        });
-
-
-        function makeCtor(args, api){
-            var Ctor = function(){
-                var self = this instanceof Ctor ? this : Object.create(Ctor.prototype);
-                return api.request(arguments, args, self);
-            }
-
-            decorate(Ctor, {
-                args: Object.freeze(args),
-                toString: function toString(){ return '[ '+this.args.join(', ')+' ]' }
-            });
-            return Ctor;
-        }
-
-        // #################
-        // ### APIClient ###
-        // #################
-
-        // generalized REST API handler that turns routes into functions
-
-        function APIClient(routes, onlyGetters){
-            var self = this;
-            var slices = {};
-
-            function recurse(o,path){
-                Object.keys(o).forEach(function(k){
-                    if (k === 'SLICE') {
-                        slices[path[0]] = o[k];
-                    } else if (k.toUpperCase() === k) {
-                        if (onlyGetters) {
-                            if (k !== 'GET') return;
-                            var name = path.toName(slices[path[0]]);
-                        } else {
-                            var name = path.toName(slices[path[0]], k);
-                        }
-
-                        if (name) {
-                            var target = self[path[0]] || (self[path[0]] = {});
-                        } else {
-                            name = path[0];
-                            var target = self;
-                        }
-
-                        target[name] = makeCtor(path.args().concat(o[k]), self);
-
-                        Object.defineProperty(target[name].prototype, 'path', {
-                            get: function(){
-                                return path.map(function(s){
-                                    return s[0] === 'Δ' ? this[s.slice(1)] : s;
-                                }, this).join('/');
-                            }
-                        });
-
-                    } else if (isObject(o[k])) {
-                        recurse(o[k], path.concat(k));
-                    }
-                });
-            }
-
-            recurse(routes, new Path);
-        }
-
-        decorate(APIClient.prototype, {
-            request: function request(args, fields, req){
-                args = [].slice.call(args);
-                var callback = typeof args[args.length-1] === 'function' ? args.pop() : this.callback;
-                fields.forEach(function(p,i){
-                    if (typeof args[i] != null) {
-                        req[p] = args[i];
-                    }
-                });
-                var transport = decorate(Object.create(this.transport), {
-                    path: req.path,
-                    data: req
-                });
-                transport.send(callback);
-                return transport;
-            },
-            setTransport: function setTransport(type, base, dispatcher){
-                Object.defineProperty(this, 'transport', {
-                    value: Transport.create(type, base, dispatcher),
-                    configurable: true,
-                    writable: true
-                });
-            }
-        });
-
-
-        // ####################
-        // ### GithubClient ###
-        // ####################
-
-        // APIClient subclass with routes and utilities for Github
-
-        function GithubClient(user, password){
-            var self = this;
-
-            function findRefs(obj){
-                isObject(obj) && Object.keys(obj).forEach(function(key){
-                    if (key !== 'url') return;
-
-                    var val = obj[key].slice(23).split('/');
-                    var fn = self[val[0]];
-                    if (!fn) return;
-                    if (fn[val[1]]) {
-                        fn = fn[val[1]];
-                        val = val.slice(2);
-                    } else {
-                        val = val.slice(1);
-                    }
-
-                    obj.resolve = function(cb){
-                        if (typeof cb === 'function') val.push(cb);
-                        return fn.apply(null, val);
-                    }.bind(null);
-
-                    if (isObject(obj[key])) {
-                        return findRefs(obj[key]);
-                    }
-                });
-            }
-
-            this.setTransport('xhr', 'https://api.github.com', function(result){
-                if (result) {
-                    findRefs(result);
-                    self.lastResult = result;
-                }
-                if (self.callback) {
-                    self.callback.call(self, result);
-                }
-            });
-
-            this.transport.headers.Accept = 'application/vnd.github.full+json';
-            if (user) {
-                this.transport.auth(user, password);
-            }
-
-            APIClient.call(this, githubRoutes, true);
-            this.users.search = this.legacy.userSearchKeyword;
-            this.users.searchEmails = this.legacy.userEmailEmail;
-            this.repos.search = this.legacy.reposSearchKeyword;
-            this.repos.searchIssues = this.legacy.issuesSearchOwnerRepositoryStateKeyword;
-            delete this.legacy;
-        }
-
-        GithubClient.createClient = function createClient(user, pass){
-            return new GithubClient(user, pass);
-        };
-
-        GithubClient.prototype = Object.create(APIClient.prototype)
-        decorate(GithubClient.prototype, {
-            constructor: GithubClient
-        });
-
-        return GithubClient;
-
-// ########################################
-// ### Routes for Github V3 API in full ###
-// ########################################
-
-    }(new Function('return this')(), {
-        legacy:{SLICE:1,issues:{search:{Δowner:{Δrepository:{Δstate:{Δkeyword:{GET:[]}}}}}},repos:{search:{Δkeyword:{GET:['language','start_page']}}},user:{search:{Δkeyword:{GET:[]}},email:{Δemail:{GET:[]}}}},
-        gists:{SLICE:1,POST:['description','public','files'],GET:['page','per_page'],public:{GET:[]},starred:{GET:[]},Δid:{GET:[],PATCH:['description','files'],star:{GET:[],DELETE:[],POST:[]},fork:{POST:[]},comments:{GET:[],POST:['input'],Δid:{GET:[],DELETE:[],PATCH:['body']}}}},
-        teams:{SLICE:2,Δid:{GET:[],DELETE:[],PATCH:['name','permission'],members:{GET:['page','per_page'],Δuser:{GET:[],DELETE:[],POST:[]}},repos:{GET:['page','per_page'],Δuser:{Δrepo:{GET:[],DELETE:[],POST:[]}}}}},
-        orgs:{SLICE:2,Δorg:{GET:['page','per_page'],PATCH:['billing_email','company','email','location','name'],members:{GET:['page','per_page'],Δuser:{GET:[],DELETE:[]}},public_members:{GET:[],Δuser:{GET:[],DELETE:[],POST:[]}},teams:{GET:[],POST:['name','repo_names','permission']},repos:{GET:['type','page','per_page'],POST:['name','description','homepage','private','has_issues','has_wiki','has_downloads','team_id'],Δsha:{GET:[]}}}},
-        repos:{SLICE:3,Δuser:{Δrepo:{GET:[],GET2:['page','per_page'],PATCH:['name','description','homepage','private','has_issues','has_wiki','has_downloads'],contributors:{GET:['anon','page','per_page']},languages:{GET:['anon','page','per_page']},teams:{GET:['page','per_page']},tags:{GET:['page','per_page'],Δsha:{POST:['tag','message','object','type','tagger.name','tagger.email','tagger.date']}},git:{refs:{POST:['refs','sha'],GET:['page','per_page'],Δref:{GET:[],PATCH:['sha','force']}},commits:{POST:['message','tree','parents','author','committer'],Δsha:{GET:[]}},blobs:{POST:['content','encoding'],Δsha:{GET:['page','per_page']}}},
-            branches:{GET:['page','per_page']},events:{GET:['page','per_page']},issues:{GET:['milestone','state','assignee','mentioned','labels','sort','direction','since','page','per_page'],POST:['title','body','assignee','milestone','labels'],events:{GET:['page','per_page'],GET2:[],Δid:{}},Δnumber:{GET:[],PATCH:['title','body','assignee','milestone','labels'],comments:{GET:['page','per_page'],POST:['body']},events:{GET:['page','per_page']}},comments:{Δid:{GET:[],DELETE:[],PATCH:['body']}},},pulls:{GET:['state','page','per_page'],POST:['title','body','base','head'],POST2:['issue','base','head'],Δnumber:{GET:[],PATCH:['state','title','body'],merge:{GET:['page','per_page'],POST:['commit_message']},files:{GET:['page','per_page']},commits:{GET:['page','per_page']},
-                comments:{POST:['body','in_reply_to'],POST2:['body','commit_id','path','position'],GET:['page','per_page'],}},comments:{Δnumber:{GET:[],DELETE:[],PATCH:['body']}}},commits:{GET:['sha','path','page','per_page'],Δsha:{GET:[],comments:{GET:['page','per_page'],POST:['body','commit_id','line','path','position']}},},comments:{Δid:{GET:[],DELETE:[],PATCH:['body']}},compare:{ΔbaseΔhead:{GET:['base','head']}},download:{GET:['page','per_page']},downloads:{Δid:{GET:[],DELETE:[]}},forks:{POST:['org'],GET:['sort','page','per_page']},labels:{GET:[],POST:['name','color'],Δname:{GET:[],POST:['color']}},keys:{GET:['page','per_page'],POST:['title','key'],Δid:{GET:[],DELETE:[],POST:['title','key']}},watchers:{GET:['page','per_page']},
-            hooks:{GET:['page','per_page'],POST:['name','config','events','active'],Δid:{GET:[],DELETE:[],PATCH:['name','config','events','add_events','remove_events','active'],test:{POST:[]}}},milestones:{POST:['title','state','description','due_on'],GET:['state','sort','page','per_page'],Δnumber:{DELETE:[],GET:[],PATCH:['title','state','description','due_on']}},trees:{POST:['tree'],Δsha:{GET:['recursive']}},collaborators:{GET:['page','per_page'],Δcollabuser:{GET:[],DELETE:[],POST:[]}}}}},
-        authorizations:{SLICE:0,GET:[]},
-        user:{SLICE:1,GET:[],PATCH:['name','email','blog','company','location','hireable','bio'],gists:{GET:['page','per_page']},emails:{GET:['page','per_page'],DELETE:[],POST:[]},following:{GET:['page','per_page'],Δuser:{GET:['page','per_page'],DELETE:[],POST:[]}},watched:{GET:['page','per_page'],Δuser:{Δrepo:{GET:['page','per_page'],DELETE:[],POST:[]}}},keys:{GET:['page','per_page'],POST:['title','key'],Δid:{GET:[],DELETE:[],PATCH:['title','key']}},repos:{GET:['type','page','per_page'],POST:['name','description','homepage','private','has_issues','has_wiki','has_downloads']}},
-        users:{SLICE:2,Δuser:{GET:[],gists:{GET:['page','per_page']},followers:{GET:['page','per_page']},following:{GET:['page','per_page']},orgs:{GET:['page','per_page']},watched:{GET:['page','per_page']},received_events:{GET:['page','per_page']},events:{GET:['page','per_page']},repos:{GET:['type','page','per_page']}}},
-        networks:{SLICE:2,Δuser:{Δrepo:{events:{GET:['page','per_page']}},events:{orgs:{Δorg:{GET:['page','per_page']}}}}},
-        events:{SLICE:1,GET:['page','per_page']}
-    }));
-
-
-
-
     radic.extend({
-        github: github
+        md5: function (string) {
+
+            function cmn(q, a, b, x, s, t) {
+                a = add32(add32(a, q), add32(x, t));
+                return add32((a << s) | (a >>> (32 - s)), b);
+            }
+
+
+            function ff(a, b, c, d, x, s, t) {
+                return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+            }
+
+            function gg(a, b, c, d, x, s, t) {
+                return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+            }
+
+            function hh(a, b, c, d, x, s, t) {
+                return cmn(b ^ c ^ d, a, b, x, s, t);
+            }
+
+            function ii(a, b, c, d, x, s, t) {
+                return cmn(c ^ (b | (~d)), a, b, x, s, t);
+            }
+
+
+            function md5cycle(x, k) {
+                var a = x[0], b = x[1], c = x[2], d = x[3];
+
+                a = ff(a, b, c, d, k[0], 7, -680876936);
+                d = ff(d, a, b, c, k[1], 12, -389564586);
+                c = ff(c, d, a, b, k[2], 17, 606105819);
+                b = ff(b, c, d, a, k[3], 22, -1044525330);
+                a = ff(a, b, c, d, k[4], 7, -176418897);
+                d = ff(d, a, b, c, k[5], 12, 1200080426);
+                c = ff(c, d, a, b, k[6], 17, -1473231341);
+                b = ff(b, c, d, a, k[7], 22, -45705983);
+                a = ff(a, b, c, d, k[8], 7, 1770035416);
+                d = ff(d, a, b, c, k[9], 12, -1958414417);
+                c = ff(c, d, a, b, k[10], 17, -42063);
+                b = ff(b, c, d, a, k[11], 22, -1990404162);
+                a = ff(a, b, c, d, k[12], 7, 1804603682);
+                d = ff(d, a, b, c, k[13], 12, -40341101);
+                c = ff(c, d, a, b, k[14], 17, -1502002290);
+                b = ff(b, c, d, a, k[15], 22, 1236535329);
+
+                a = gg(a, b, c, d, k[1], 5, -165796510);
+                d = gg(d, a, b, c, k[6], 9, -1069501632);
+                c = gg(c, d, a, b, k[11], 14, 643717713);
+                b = gg(b, c, d, a, k[0], 20, -373897302);
+                a = gg(a, b, c, d, k[5], 5, -701558691);
+                d = gg(d, a, b, c, k[10], 9, 38016083);
+                c = gg(c, d, a, b, k[15], 14, -660478335);
+                b = gg(b, c, d, a, k[4], 20, -405537848);
+                a = gg(a, b, c, d, k[9], 5, 568446438);
+                d = gg(d, a, b, c, k[14], 9, -1019803690);
+                c = gg(c, d, a, b, k[3], 14, -187363961);
+                b = gg(b, c, d, a, k[8], 20, 1163531501);
+                a = gg(a, b, c, d, k[13], 5, -1444681467);
+                d = gg(d, a, b, c, k[2], 9, -51403784);
+                c = gg(c, d, a, b, k[7], 14, 1735328473);
+                b = gg(b, c, d, a, k[12], 20, -1926607734);
+
+                a = hh(a, b, c, d, k[5], 4, -378558);
+                d = hh(d, a, b, c, k[8], 11, -2022574463);
+                c = hh(c, d, a, b, k[11], 16, 1839030562);
+                b = hh(b, c, d, a, k[14], 23, -35309556);
+                a = hh(a, b, c, d, k[1], 4, -1530992060);
+                d = hh(d, a, b, c, k[4], 11, 1272893353);
+                c = hh(c, d, a, b, k[7], 16, -155497632);
+                b = hh(b, c, d, a, k[10], 23, -1094730640);
+                a = hh(a, b, c, d, k[13], 4, 681279174);
+                d = hh(d, a, b, c, k[0], 11, -358537222);
+                c = hh(c, d, a, b, k[3], 16, -722521979);
+                b = hh(b, c, d, a, k[6], 23, 76029189);
+                a = hh(a, b, c, d, k[9], 4, -640364487);
+                d = hh(d, a, b, c, k[12], 11, -421815835);
+                c = hh(c, d, a, b, k[15], 16, 530742520);
+                b = hh(b, c, d, a, k[2], 23, -995338651);
+
+                a = ii(a, b, c, d, k[0], 6, -198630844);
+                d = ii(d, a, b, c, k[7], 10, 1126891415);
+                c = ii(c, d, a, b, k[14], 15, -1416354905);
+                b = ii(b, c, d, a, k[5], 21, -57434055);
+                a = ii(a, b, c, d, k[12], 6, 1700485571);
+                d = ii(d, a, b, c, k[3], 10, -1894986606);
+                c = ii(c, d, a, b, k[10], 15, -1051523);
+                b = ii(b, c, d, a, k[1], 21, -2054922799);
+                a = ii(a, b, c, d, k[8], 6, 1873313359);
+                d = ii(d, a, b, c, k[15], 10, -30611744);
+                c = ii(c, d, a, b, k[6], 15, -1560198380);
+                b = ii(b, c, d, a, k[13], 21, 1309151649);
+                a = ii(a, b, c, d, k[4], 6, -145523070);
+                d = ii(d, a, b, c, k[11], 10, -1120210379);
+                c = ii(c, d, a, b, k[2], 15, 718787259);
+                b = ii(b, c, d, a, k[9], 21, -343485551);
+
+                x[0] = add32(a, x[0]);
+                x[1] = add32(b, x[1]);
+                x[2] = add32(c, x[2]);
+                x[3] = add32(d, x[3]);
+
+            }
+
+
+            function md51(s) {
+                txt = '';
+                var n = s.length,
+                    state = [1732584193, -271733879, -1732584194, 271733878], i;
+                for (i = 64; i <= n; i += 64) {
+                    md5cycle(state, md5blk(s.substring(i - 64, i)));
+                }
+                s = s.substring(i - 64);
+                var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], sl = s.length;
+                for (i = 0; i < sl; i++)    tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
+                tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+                if (i > 55) {
+                    md5cycle(state, tail);
+                    i = 16;
+                    while (i--) {
+                        tail[i] = 0
+                    }
+                    //			for (i=0; i<16; i++) tail[i] = 0;
+                }
+                tail[14] = n * 8;
+                md5cycle(state, tail);
+                return state;
+            }
+
+            /* there needs to be support for Unicode here,
+             * unless we pretend that we can redefine the MD-5
+             * algorithm for multi-byte characters (perhaps
+             * by adding every four 16-bit characters and
+             * shortening the sum to 32 bits). Otherwise
+             * I suggest performing MD-5 as if every character
+             * was two bytes--e.g., 0040 0025 = @%--but then
+             * how will an ordinary MD-5 sum be matched?
+             * There is no way to standardize text to something
+             * like UTF-8 before transformation; speed cost is
+             * utterly prohibitive. The JavaScript standard
+             * itself needs to look at this: it should start
+             * providing access to strings as preformed UTF-8
+             * 8-bit unsigned value arrays.
+             */
+            function md5blk(s) {        /* I figured global was faster.   */
+                var md5blks = [], i;
+                /* Andy King said do it this way. */
+                for (i = 0; i < 64; i += 4) {
+                    md5blks[i >> 2] = s.charCodeAt(i)
+                    + (s.charCodeAt(i + 1) << 8)
+                    + (s.charCodeAt(i + 2) << 16)
+                    + (s.charCodeAt(i + 3) << 24);
+                }
+                return md5blks;
+            }
+
+            var hex_chr = '0123456789abcdef'.split('');
+
+            function rhex(n) {
+                var s = '', j = 0;
+                for (; j < 4; j++)    s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F];
+                return s;
+            }
+
+            function hex(x) {
+                var l = x.length;
+                for (var i = 0; i < l; i++)    x[i] = rhex(x[i]);
+                return x.join('');
+            }
+
+            /* this function is much faster,
+             so if possible we use it. Some IEs
+             are the only ones I know of that
+             need the idiotic second function,
+             generated by an if clause.  */
+
+            function add32(a, b) {
+                return (a + b) & 0xFFFFFFFF;
+            }
+
+            if (hex(md51("hello")) != "5d41402abc4b2a76b9719d911017c592") {
+                function add32(x, y) {
+                    var lsw = (x & 0xFFFF) + (y & 0xFFFF),
+                        msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+                    return (msw << 16) | (lsw & 0xFFFF);
+                }
+            }
+
+            return hex(md51(string));
+
+
+        }
     });
 
 
-    (function () {
-        var g = {};
-        if(radic.defined(OAuth)){
-            g = OAuth.create('github') || {};
-        }
+    radic.extend({
+        utf8: {
+            encode: function (argString) {
+                //  discuss at: http://phpjs.org/functions/utf8_encode/
+                // original by: Webtoolkit.info (http://www.webtoolkit.info/)
+                // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+                // improved by: sowberry
+                // improved by: Jack
+                // improved by: Yves Sucaet
+                // improved by: kirilloid
+                // bugfixed by: Onno Marsman
+                // bugfixed by: Onno Marsman
+                // bugfixed by: Ulrich
+                // bugfixed by: Rafal Kukawski
+                // bugfixed by: kirilloid
+                //   example 1: utf8_encode('Kevin van Zonneveld');
+                //   returns 1: 'Kevin van Zonneveld'
 
-        g.login = function (callback) {
-            var self = this;
-            var promise = OAuth.popup('github', {cache: true});
-            promise.done(function (result) {
-                self.refresh();
-                if (radic.isFunction(callback)) {
-                    callback(result);
+                if (argString === null || typeof argString === 'undefined') {
+                    return '';
                 }
-            })
-        };
 
-        g.logout = function () {
-            OAuth.clearCache('github');
-            this.refresh();
-        };
+                var string = (argString + ''); // .replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+                var utftext = '',
+                    start, end, stringl = 0;
 
-        g.loggedin = function () {
-            return OAuth.create('github') !== false;
-        };
+                start = end = 0;
+                stringl = string.length;
+                for (var n = 0; n < stringl; n++) {
+                    var c1 = string.charCodeAt(n);
+                    var enc = null;
 
-        g.init = function (publicKey) {
-            OAuth.initialize(publicKey);
-        };
+                    if (c1 < 128) {
+                        end++;
+                    } else if (c1 > 127 && c1 < 2048) {
+                        enc = String.fromCharCode(
+                            (c1 >> 6) | 192, (c1 & 63) | 128
+                        );
+                    } else if ((c1 & 0xF800) != 0xD800) {
+                        enc = String.fromCharCode(
+                            (c1 >> 12) | 224, ((c1 >> 6) & 63) | 128, (c1 & 63) | 128
+                        );
+                    } else { // surrogate pairs
+                        if ((c1 & 0xFC00) != 0xD800) {
+                            throw new RangeError('Unmatched trail surrogate at ' + n);
+                        }
+                        var c2 = string.charCodeAt(++n);
+                        if ((c2 & 0xFC00) != 0xDC00) {
+                            throw new RangeError('Unmatched lead surrogate at ' + (n - 1));
+                        }
+                        c1 = ((c1 & 0x3FF) << 10) + (c2 & 0x3FF) + 0x10000;
+                        enc = String.fromCharCode(
+                            (c1 >> 18) | 240, ((c1 >> 12) & 63) | 128, ((c1 >> 6) & 63) | 128, (c1 & 63) | 128
+                        );
+                    }
+                    if (enc !== null) {
+                        if (end > start) {
+                            utftext += string.slice(start, end);
+                        }
+                        utftext += enc;
+                        start = end = n + 1;
+                    }
+                }
 
-        $.extend(radic.github, g);
+                if (end > start) {
+                    utftext += string.slice(start, stringl);
+                }
 
-    }).call();
+                return utftext;
+            },
+            decode: function (str_data) {
+                //  discuss at: http://phpjs.org/functions/utf8_decode/
+                // original by: Webtoolkit.info (http://www.webtoolkit.info/)
+                //    input by: Aman Gupta
+                //    input by: Brett Zamir (http://brett-zamir.me)
+                // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+                // improved by: Norman "zEh" Fuchs
+                // bugfixed by: hitwork
+                // bugfixed by: Onno Marsman
+                // bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+                // bugfixed by: kirilloid
+                //   example 1: utf8_decode('Kevin van Zonneveld');
+                //   returns 1: 'Kevin van Zonneveld'
 
+                var tmp_arr = [],
+                    i = 0,
+                    ac = 0,
+                    c1 = 0,
+                    c2 = 0,
+                    c3 = 0,
+                    c4 = 0;
+
+                str_data += '';
+
+                while (i < str_data.length) {
+                    c1 = str_data.charCodeAt(i);
+                    if (c1 <= 191) {
+                        tmp_arr[ac++] = String.fromCharCode(c1);
+                        i++;
+                    } else if (c1 <= 223) {
+                        c2 = str_data.charCodeAt(i + 1);
+                        tmp_arr[ac++] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
+                        i += 2;
+                    } else if (c1 <= 239) {
+                        // http://en.wikipedia.org/wiki/UTF-8#Codepage_layout
+                        c2 = str_data.charCodeAt(i + 1);
+                        c3 = str_data.charCodeAt(i + 2);
+                        tmp_arr[ac++] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                        i += 3;
+                    } else {
+                        c2 = str_data.charCodeAt(i + 1);
+                        c3 = str_data.charCodeAt(i + 2);
+                        c4 = str_data.charCodeAt(i + 3);
+                        c1 = ((c1 & 7) << 18) | ((c2 & 63) << 12) | ((c3 & 63) << 6) | (c4 & 63);
+                        c1 -= 0x10000;
+                        tmp_arr[ac++] = String.fromCharCode(0xD800 | ((c1 >> 10) & 0x3FF));
+                        tmp_arr[ac++] = String.fromCharCode(0xDC00 | (c1 & 0x3FF));
+                        i += 4;
+                    }
+                }
+
+                return tmp_arr.join('');
+            }
+        }
+    });
 
 
     var json = {};
@@ -2420,7 +2417,7 @@ var _each = function(arr, iterator) {
         }
         if(options.expires){
             var now = Math.floor((Date.now() / 1000) / 60);
-            window['localStorage'].setItem(key + ':expire', now + options.expire);
+            window['localStorage'].setItem(key + ':expire', now + options.expires);
         }
         window['localStorage'].setItem(key, val);
     };
@@ -2467,6 +2464,693 @@ var _each = function(arr, iterator) {
     radic.extend({
         storage: storage
     });
+
+
+
+    var GithubClient = (function (GithubClient) {
+
+        return GithubClient; //('06ec61fd2853f215bb01f7c5b2e0f56ff8537838'); //'e243a6a733de08c8dfd37e86abd7d2a3b82784de');
+
+    })(function (global, githubRoutes) {
+
+
+        // ###########################
+        // ### Helpers and globals ###
+        // ###########################
+
+        var FP = Function.prototype,
+            AP = Array.prototype,
+            OP = Object.prototype;
+
+        var bindbind = FP.bind.bind(FP.bind),
+            callbind = bindbind(FP.bind),
+            applybind = bindbind(FP.apply);
+
+        var has = callbind(OP.hasOwnProperty),
+            slice = callbind(AP.slice),
+            flatten = applybind(AP.concat, []);
+
+        var filter_ = AP.filter,
+            map_ = AP.map,
+            push_ = AP.push,
+            slice_ = AP.slice;
+
+
+        function decorate(o) {
+            var b, c, d;
+            for (var i = 1; b = arguments[i]; i++) {
+                for (c in b) {
+                    if (d = Object.getOwnPropertyDescriptor(b, c)) {
+                        if (d.get || d.set) {
+                            Object.defineProperty(o, c, d);
+                        } else {
+                            o[c] = d.value;
+                        }
+                    }
+                }
+            }
+            return o;
+        }
+
+        function isObject(o) {
+            return o != null && typeof o === 'object' || typeof o === 'function';
+        }
+
+        function isIndexed(o) {
+            return Array.isArray(o) || isObject(o) && has(o, 'length') && has(o, o.length - 1);
+        }
+
+        // ############
+        // ### Path ###
+        // ############
+
+        function Path(a) {
+            if (isIndexed(a)) {
+                push_.apply(this, a);
+            }
+        }
+
+        Path.prototype.length = 0;
+
+        decorate(Path.prototype, {
+            join: Array.prototype.join,
+            map: Array.prototype.map,
+            concat: function concat() {
+                var out = new Path(this);
+                push_.apply(out, arguments);
+                return out;
+            },
+            args: function args() {
+                return filter_.call(this, function (s) {
+                    return s[0] === 'Δ';
+                }).map(function (s) {
+                    return s.replace(/Δ/g, '');
+                });
+            },
+            toName: function toName(slice, last) {
+                var array = map_.call(this, function (s) {
+                    return s.replace(/Δ/g, '');
+                });
+
+                if (last) {
+                    array.push(last);
+                }
+
+                var out = array.slice(slice || 1).map(function (s) {
+                    return s[0].toUpperCase() + s.slice(1).toLowerCase();
+                });
+
+                if (!out[0]) {
+                    return '';
+                } else {
+                    out[0] = out[0].toLowerCase();
+                    return out.join('').replace(/_(.)/g, function (s) {
+                        return s[1].toUpperCase();
+                    });
+                }
+            },
+            slice: function slice() {
+                return new Path(slice_.apply(this, arguments));
+            }
+        });
+
+
+        // #################
+        // ### Transport ###
+        // #################
+
+        // superclass for XHR and JSONP
+
+        function Transport(options, callback) {
+            options = options || {};
+            if (typeof options === 'string') {
+                options = {url: options};
+            }
+            if (typeof callback === 'function') {
+                options.callback = callback;
+            }
+            this.data = options.data || {};
+            this.path = options.path || [];
+            this.base = options.url;
+            this.callback = options.callback || function () {
+            };
+            this.state = 'idle';
+        }
+
+        Transport.transports = {};
+
+        decorate(Transport, {
+            register: function register(ctor) {
+                Transport.transports[ctor.name.toLowerCase()] = ctor;
+            },
+            lookup: function lookup(name) {
+                name = name.toLowerCase();
+                return name in Transport.transports ? Transport.transports[name] : null;
+            },
+            create: function create(type, base, dispatcher) {
+                var T = Transport.lookup(type);
+                return new T(base, dispatcher);
+            }
+        });
+
+
+        decorate(Transport.prototype, {
+            async: true,
+            cache: true,
+            expires: 60, // minutes
+            params: function params() {
+                var data = Object.keys(this.data).map(function (name) {
+                    return [name, this.data[name]]
+                }, this);
+                data.push([this.callbackParam, this.callbackName]);
+                return data.map(function (item) {
+                    return encodeURIComponent(item[0]) + '=' + encodeURIComponent(item[1]);
+                }).join('&');
+            }
+        });
+
+        // #######################
+        // ### JSONP Transport ###
+        // #######################
+
+        function JSONP(options, callback) {
+            Transport.call(this, options = options || {}, callback);
+            this.callbackParam = options.callbackParam || 'callback';
+            this.callbackName = options.callbackName || '_' + Math.random().toString(36).slice(2);
+        }
+
+        Transport.register(JSONP);
+
+        JSONP.prototype = Object.create(Transport.prototype);
+        decorate(JSONP.prototype, {
+            constructor: JSONP,
+
+            url: function url() {
+                return [this.base].concat(this.path).join('/') + '?' + this.params();
+            },
+            send: function send(callback) {
+                var cacheKey = radic.md5(JSON.stringify({path: this.path, data: this.data}));
+
+                if (this.cache) {
+                    var cache = radic.storage.get(cacheKey, {json: true, force: this.cache !== true});
+                    if (radic.defined(cache) && !radic.isNull(cache)) {
+                        //this.state = 'success';
+                        console.log('cache jsonp', typeof cache);
+                        if(this.async === false) {
+                            return {data: cache.data, meta: cache.meta};
+                        }
+                        if(radic.isFunction(callback)) {
+                            callback.call(this, cache.data, cache.meta);
+                        }
+                        return this;
+                    }
+                }
+
+                var script = document.createElement('script'),
+                    completed
+
+                this.callbackName = '_' + Math.random().toString(36).slice(2);
+
+                callback = callback || this.callback;
+
+                function complete(state, result) {
+                    if (!completed) {
+                        completed = true;
+                        delete window[this.callbackName];
+                        document.body.removeChild(script);
+                        this.state = state;
+
+                        if (this.cache) {
+                            radic.storage.set(cacheKey, result, {
+                                expires: this.expires,
+                                json: true
+                            });
+                        }
+
+                        this.response = result;
+                        callback.call(this, result.data, result.meta);
+                    }
+                }
+
+                script.src = this.url();
+                script.async = script.defer = this.async;
+                script.onerror = complete.bind(this, 'error');
+                window[this.callbackName] = complete.bind(this, 'success');
+
+                document.body.appendChild(script);
+                this.state = 'loading';
+                return this.async ? this : this.response;
+            }
+        });
+
+        // ################################
+        // ### XMLHttpRequest Transport ###
+        // ################################
+
+        function XHR(options, callback) {
+            this.headers = {};
+            options = options || {}
+
+            Transport.call(this, options, callback);
+
+            if (options.headers) {
+                Object.keys(options.headers).forEach(function (n) {
+                    this[n] = options.headers[n];
+                }, this.headers);
+            }
+        }
+
+        Transport.register(XHR);
+
+        XHR.prototype = Object.create(Transport.prototype);
+        decorate(XHR.prototype, {
+            constructor: XHR,
+            url: function url() {
+                var params = this.params();
+                return [this.base].concat(this.path).join('/') + (this.verb === 'get' && params ? '?' + params : '');
+            },
+            auth: function auth(user, pass) {
+                if (!pass && user.length === 40) {
+                    this.headers.Authorization = 'token ' + user;
+                } else {
+                    this.headers.Authorization = 'Basic ' + btoa(user + ':' + pass);
+                }
+            },
+            send: function send(callback, verb) {
+
+
+
+                var cacheKey = radic.md5(JSON.stringify({path: this.path, data: this.data}));
+                if (this.cache) {
+                    var cache = radic.storage.get(cacheKey, {json: true });
+                    if (radic.defined(cache) && !radic.isNull(cache)) {
+                        console.log('cache xhr', typeof cache, cache);
+                        if(this.async === true) {
+                            callback.call(this, cache.data, cache.meta);
+                            return this;
+                        } else {
+                            return {data: cache.data, meta: cache.meta};
+                        }
+                    }
+                }
+                if (typeof callback !== 'function') {
+                    verb = callback;
+                    callback = this.callback;
+                }
+
+                var xhr = new XMLHttpRequest,
+                    self = this;
+
+                function complete(data) {
+                    if (xhr.readyState === 4) {
+                        self.state = 'complete';
+
+
+                        var headerJson = {};
+                        xhr.getAllResponseHeaders().split("\n").forEach(function(a){
+                            if(radic.isString(a) && a.length > 0){
+                                var header = a.split(':');
+                                headerJson[header[0]] = header[1];
+                            }
+                        });
+
+                        var responseData = JSON.parse(xhr.responseText);
+
+                        var response = {data: responseData, meta: headerJson}
+                        if (self.cache) {
+                            radic.storage.set(cacheKey, response, {
+                                expires: self.expires,
+                                json: true
+                            });
+                        }
+
+                        callback.call(self, responseData, headerJson, xhr);
+                        return response
+                    }
+                }
+
+                xhr.open(verb || 'GET', this.url(), this.async);
+                if (this.headers.Authenticate) {
+                    xhr.withCredentials = true;
+                }
+
+                Object.keys(this.headers).forEach(function (name) {
+                    xhr.setRequestHeader(name, self.headers[name]);
+                });
+
+                xhr.onerror = complete;
+
+                xhr.onreadystatechange = function (readyState) {
+                    console.log('onreaddy change', readyState);
+                };
+
+                xhr.onload = complete;
+
+                xhr.send(this.data || null);
+                this.state = 'loading';
+                return this.async === true ? this : complete();
+            }
+        });
+
+
+        function makeCtor(args, api) {
+            var Ctor = function () {
+                var self = this instanceof Ctor ? this : Object.create(Ctor.prototype);
+                return api.request(arguments, args, self);
+            }
+
+            decorate(Ctor, {
+                args: Object.freeze(args),
+                toString: function toString() {
+                    return '[ ' + this.args.join(', ') + ' ]'
+                }
+            });
+            return Ctor;
+        }
+
+        // #################
+        // ### APIClient ###
+        // #################
+
+        // generalized REST API handler that turns routes into functions
+
+        function APIClient(routes, onlyGetters) {
+            var self = this;
+            var slices = {};
+
+            function recurse(o, path) {
+                Object.keys(o).forEach(function (k) {
+                    if (k === 'SLICE') {
+                        slices[path[0]] = o[k];
+                    } else if (k.toUpperCase() === k) {
+                        if (onlyGetters) {
+                            if (k !== 'GET') return;
+                            var name = path.toName(slices[path[0]]);
+                        } else {
+                            var name = path.toName(slices[path[0]], k);
+                        }
+
+                        if (name) {
+                            var target = self[path[0]] || (self[path[0]] = {});
+                        } else {
+                            name = path[0];
+                            var target = self;
+                        }
+
+                        target[name] = makeCtor(path.args().concat(o[k]), self);
+
+                        Object.defineProperty(target[name].prototype, 'path', {
+                            get: function () {
+                                return path.map(function (s) {
+                                    return s[0] === 'Δ' ? this[s.slice(1)] : s;
+                                }, this).join('/');
+                            }
+                        });
+
+                    } else if (isObject(o[k])) {
+                        recurse(o[k], path.concat(k));
+                    }
+                });
+            }
+
+            recurse(routes, new Path);
+        }
+
+        decorate(APIClient.prototype, {
+            request: function request(args, fields, req) {
+                args = [].slice.call(args);
+                var callback = typeof args[args.length - 1] === 'function' ? args.pop() : this.callback;
+                fields.forEach(function (p, i) {
+                    if (typeof args[i] != null) {
+                        req[p] = args[i];
+                    }
+                });
+                var transport = decorate(Object.create(this.transport), {
+                    path: req.path,
+                    data: req
+                });
+
+                return transport.send(callback);
+            },
+            setTransport: function setTransport(type, base, dispatcher) {
+                Object.defineProperty(this, 'transport', {
+                    value: Transport.create(type, base, dispatcher),
+                    configurable: true,
+                    writable: true
+                });
+            }
+        });
+
+
+        // ####################
+        // ### GithubClient ###
+        // ####################
+
+        // APIClient subclass with routes and utilities for Github
+
+        function GithubClient(user, password) {
+            var self = this;
+
+
+            function findRefs(obj) {
+                isObject(obj) && Object.keys(obj).forEach(function (key) {
+                    if (key !== 'url') return;
+
+                    var val = obj[key].slice(23).split('/');
+                    var fn = self[val[0]];
+                    if (!fn) return;
+                    if (fn[val[1]]) {
+                        fn = fn[val[1]];
+                        val = val.slice(2);
+                    } else {
+                        val = val.slice(1);
+                    }
+
+                    obj.resolve = function (cb) {
+                        if (typeof cb === 'function') val.push(cb);
+                        return fn.apply(null, val);
+                    }.bind(null);
+
+                    if (isObject(obj[key])) {
+                        return findRefs(obj[key]);
+                    }
+                });
+            }
+
+            this.setTransport('xhr', 'https://api.github.com', function (result) {
+                if (result) {
+                    findRefs(result);
+                    self.lastResult = result;
+                }
+                if (self.callback) {
+                    self.callback.call(self, result);
+                }
+            });
+
+            this.transport.headers.Accept = 'application/vnd.github.full+json';
+            if (user) {
+                this.transport.auth(user, password);
+            }
+
+            APIClient.call(this, githubRoutes, true);
+            this.users.search = this.legacy.userSearchKeyword;
+            this.users.searchEmails = this.legacy.userEmailEmail;
+            this.repos.search = this.legacy.reposSearchKeyword;
+            this.repos.searchIssues = this.legacy.issuesSearchOwnerRepositoryStateKeyword;
+            delete this.legacy;
+        }
+
+        GithubClient.createClient = function createClient(user, pass) {
+            return new GithubClient(user, pass);
+        };
+
+        GithubClient.prototype = Object.create(APIClient.prototype)
+        decorate(GithubClient.prototype, {
+            constructor: GithubClient,
+            jsonp: function () {
+                this.setTransport('jsonp', 'https://api.github.com')
+            }
+        });
+
+        return GithubClient;
+
+// ########################################
+// ### Routes for Github V3 API in full ###
+// ########################################
+
+    }(new Function('return this')(), {
+        legacy: {SLICE: 1, issues: {search: {Δowner: {Δrepository: {Δstate: {Δkeyword: {GET: []}}}}}}, repos: {search: {Δkeyword: {GET: ['language', 'start_page']}}}, user: {search: {Δkeyword: {GET: []}}, email: {Δemail: {GET: []}}}},
+        gists: {
+            SLICE: 1,
+            POST: ['description', 'public', 'files'],
+            GET: ['page', 'per_page'],
+            public: {GET: []},
+            starred: {GET: []},
+            Δid: {GET: [], PATCH: ['description', 'files'], star: {GET: [], DELETE: [], POST: []}, fork: {POST: []}, comments: {GET: [], POST: ['input'], Δid: {GET: [], DELETE: [], PATCH: ['body']}}}
+        },
+        teams: {SLICE: 2, Δid: {GET: [], DELETE: [], PATCH: ['name', 'permission'], members: {GET: ['page', 'per_page'], Δuser: {GET: [], DELETE: [], POST: []}}, repos: {GET: ['page', 'per_page'], Δuser: {Δrepo: {GET: [], DELETE: [], POST: []}}}}},
+        orgs: {
+            SLICE: 2,
+            Δorg: {
+                GET: ['page', 'per_page'],
+                PATCH: ['billing_email', 'company', 'email', 'location', 'name'],
+                members: {GET: ['page', 'per_page'], Δuser: {GET: [], DELETE: []}},
+                public_members: {GET: [], Δuser: {GET: [], DELETE: [], POST: []}},
+                teams: {GET: [], POST: ['name', 'repo_names', 'permission']},
+                repos: {GET: ['type', 'page', 'per_page'], POST: ['name', 'description', 'homepage', 'private', 'has_issues', 'has_wiki', 'has_downloads', 'team_id'], Δsha: {GET: []}}
+            }
+        },
+        repos: {
+            SLICE: 3, Δuser: {
+                Δrepo: {
+                    GET: [],
+                    GET2: ['page', 'per_page'],
+                    PATCH: ['name', 'description', 'homepage', 'private', 'has_issues', 'has_wiki', 'has_downloads'],
+                    contributors: {GET: ['anon', 'page', 'per_page']},
+                    languages: {GET: ['anon', 'page', 'per_page']},
+                    teams: {GET: ['page', 'per_page']},
+                    tags: {GET: ['page', 'per_page'], Δsha: {POST: ['tag', 'message', 'object', 'type', 'tagger.name', 'tagger.email', 'tagger.date']}},
+                    git: {refs: {POST: ['refs', 'sha'], GET: ['page', 'per_page'], Δref: {GET: [], PATCH: ['sha', 'force']}}, commits: {POST: ['message', 'tree', 'parents', 'author', 'committer'], Δsha: {GET: []}}, blobs: {POST: ['content', 'encoding'], Δsha: {GET: ['page', 'per_page']}}},
+                    branches: {GET: ['page', 'per_page']},
+                    events: {GET: ['page', 'per_page']},
+                    issues: {
+                        GET: ['milestone', 'state', 'assignee', 'mentioned', 'labels', 'sort', 'direction', 'since', 'page', 'per_page'],
+                        POST: ['title', 'body', 'assignee', 'milestone', 'labels'],
+                        events: {GET: ['page', 'per_page'], GET2: [], Δid: {}},
+                        Δnumber: {GET: [], PATCH: ['title', 'body', 'assignee', 'milestone', 'labels'], comments: {GET: ['page', 'per_page'], POST: ['body']}, events: {GET: ['page', 'per_page']}},
+                        comments: {Δid: {GET: [], DELETE: [], PATCH: ['body']}},
+                    },
+                    pulls: {
+                        GET: ['state', 'page', 'per_page'], POST: ['title', 'body', 'base', 'head'], POST2: ['issue', 'base', 'head'], Δnumber: {
+                            GET: [], PATCH: ['state', 'title', 'body'], merge: {GET: ['page', 'per_page'], POST: ['commit_message']}, files: {GET: ['page', 'per_page']}, commits: {GET: ['page', 'per_page']},
+                            comments: {POST: ['body', 'in_reply_to'], POST2: ['body', 'commit_id', 'path', 'position'], GET: ['page', 'per_page'],}
+                        }, comments: {Δnumber: {GET: [], DELETE: [], PATCH: ['body']}}
+                    },
+                    commits: {GET: ['sha', 'path', 'page', 'per_page'], Δsha: {GET: [], comments: {GET: ['page', 'per_page'], POST: ['body', 'commit_id', 'line', 'path', 'position']}},},
+                    comments: {Δid: {GET: [], DELETE: [], PATCH: ['body']}},
+                    compare: {ΔbaseΔhead: {GET: ['base', 'head']}},
+                    download: {GET: ['page', 'per_page']},
+                    downloads: {Δid: {GET: [], DELETE: []}},
+                    forks: {POST: ['org'], GET: ['sort', 'page', 'per_page']},
+                    labels: {GET: [], POST: ['name', 'color'], Δname: {GET: [], POST: ['color']}},
+                    keys: {GET: ['page', 'per_page'], POST: ['title', 'key'], Δid: {GET: [], DELETE: [], POST: ['title', 'key']}},
+                    watchers: {GET: ['page', 'per_page']},
+                    hooks: {GET: ['page', 'per_page'], POST: ['name', 'config', 'events', 'active'], Δid: {GET: [], DELETE: [], PATCH: ['name', 'config', 'events', 'add_events', 'remove_events', 'active'], test: {POST: []}}},
+                    milestones: {POST: ['title', 'state', 'description', 'due_on'], GET: ['state', 'sort', 'page', 'per_page'], Δnumber: {DELETE: [], GET: [], PATCH: ['title', 'state', 'description', 'due_on']}},
+                    trees: {POST: ['tree'], Δsha: {GET: ['recursive']}},
+                    collaborators: {GET: ['page', 'per_page'], Δcollabuser: {GET: [], DELETE: [], POST: []}}
+                }
+            }
+        },
+        authorizations: {SLICE: 0, GET: []},
+        user: {
+            SLICE: 1,
+            GET: [],
+            PATCH: ['name', 'email', 'blog', 'company', 'location', 'hireable', 'bio'],
+            gists: {GET: ['page', 'per_page']},
+            emails: {GET: ['page', 'per_page'], DELETE: [], POST: []},
+            following: {GET: ['page', 'per_page'], Δuser: {GET: ['page', 'per_page'], DELETE: [], POST: []}},
+            watched: {GET: ['page', 'per_page'], Δuser: {Δrepo: {GET: ['page', 'per_page'], DELETE: [], POST: []}}},
+            keys: {GET: ['page', 'per_page'], POST: ['title', 'key'], Δid: {GET: [], DELETE: [], PATCH: ['title', 'key']}},
+            repos: {GET: ['type', 'page', 'per_page'], POST: ['name', 'description', 'homepage', 'private', 'has_issues', 'has_wiki', 'has_downloads']}
+        },
+        users: {
+            SLICE: 2,
+            Δuser: {
+                GET: [],
+                gists: {GET: ['page', 'per_page']},
+                followers: {GET: ['page', 'per_page']},
+                following: {GET: ['page', 'per_page']},
+                orgs: {GET: ['page', 'per_page']},
+                watched: {GET: ['page', 'per_page']},
+                received_events: {GET: ['page', 'per_page']},
+                events: {GET: ['page', 'per_page']},
+                repos: {GET: ['type', 'page', 'per_page']}
+            }
+        },
+        networks: {SLICE: 2, Δuser: {Δrepo: {events: {GET: ['page', 'per_page']}}, events: {orgs: {Δorg: {GET: ['page', 'per_page']}}}}},
+        events: {SLICE: 1, GET: ['page', 'per_page']}
+    }));
+
+    var makeGithubClient = function(Client, user, password){
+        console.log('make client', typeof Client, typeof user, typeof password);
+        this.github = new Client(user, password);
+
+        this.github.reset = function () {
+            this.github = new Client(user, password);
+        }.bind(this);
+
+        this.github.authorize = function (user, password, callback) {
+            callback = callback || password;
+            var self = this;
+            var github = new Client(user, password);
+            github.user(function (data, xhr) {
+                if (xhr.status === 200) {
+                    makeGithubClient(user, password);
+                    return callback(true, data, xhr);
+                }
+                callback(false, data, xhr)
+            });
+        }.bind(this);
+
+        this.github.async = function(enabled){
+            this.github.transport.async = radic.isBoolean(enabled) ? enabled : true;
+        }.bind(this);
+
+        this.github.jsonp = function(){
+            this.github.setTransport('jsonp', 'https://api.github.com');
+        }.bind(this);
+
+        this.github.xhr = function(){
+            this.github.setTransport('xhr', 'https://api.github.com');
+        }.bind(this);
+
+    }.bind(radic, GithubClient);
+
+    makeGithubClient();
+    /*
+    radic.extend({
+        _github: makeGithubClient
+    });
+
+    radic._github();
+    */
+
+
+    (function () {
+        var g = {};
+        if(radic.defined(OAuth)){
+            g = OAuth.create('github') || {};
+        }
+
+        g.login = function (callback) {
+            var self = this;
+            var promise = OAuth.popup('github', {cache: true});
+            promise.done(function (result) {
+                self.refresh();
+                if (radic.isFunction(callback)) {
+                    callback(result);
+                }
+            })
+        };
+
+        g.logout = function () {
+            OAuth.clearCache('github');
+            this.refresh();
+        };
+
+        g.loggedin = function () {
+            return OAuth.create('github') !== false;
+        };
+
+        g.init = function (publicKey) {
+            OAuth.initialize(publicKey);
+        };
+
+        $.extend(radic.github, g);
+
+    }).call();
+
 
 
 

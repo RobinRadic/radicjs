@@ -17,19 +17,26 @@ builds:
   small:
     filename: radic.small
     modules: [ base, core ]
-    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined ]
+    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined, isNumber, isBoolean, isNull, isDate, toArray ]
   all:
     filename: radic.all
     modules: [ base, core,
-              async/waterfall, async/each, cookie, crypt, github, github/oauthio, github/sync, json, # sdf
+              async/waterfall, async/each, cookie, crypt/md5, crypt/utf8, github, github/oauthio, github/sync, json, # sdf
               spinner, sprintf, storage, template, template/general, template/comparisons, widgets, wordwrap,
               exports/amd, exports/global ]
-    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined ]
+    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined, isNumber, isBoolean, isNull, isDate, toArray ]
   githubio:
     filename: radic.githubio
-    ignoredeps: [ github/oauthio ]
+    ignoredeps: [ github/oauthio, widgets ]
     modules: [ base, core,
-              async/waterfall, async/each, cookie, github, github/oauthio, github/sync, json,
+              async/waterfall, async/each, cookie, crypt/md5, crypt/utf8, github, github/oauthio, github/sync, json,
               spinner, storage, template, template/general, template/comparisons, widgets, wordwrap,
               exports/amd, exports/global ]
-    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined ]
+    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined, isNumber, isBoolean, isNull, isDate, toArray ]
+  githubprofile:
+    filename: radic.githubprofile
+    ignoredeps: [ github/oauthio ]
+    modules: [ base, core, github,
+              spinner, template, template/general, widgets,
+              exports/amd, exports/global ]
+    lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined, isNumber, isBoolean, isNull, isDate, toArray ]

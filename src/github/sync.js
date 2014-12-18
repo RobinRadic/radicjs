@@ -5,6 +5,7 @@ define([
     "../storage"
 ], function (radic) {
 
+    // @todo depracteed delete
 
     radic.github.syncRequest = function (uri) {
 

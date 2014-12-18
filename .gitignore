@@ -4,3 +4,4 @@
 /vendor
 /.idea/
 /test/vendor
+/dist/*
