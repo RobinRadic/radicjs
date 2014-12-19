@@ -20,6 +20,7 @@ builds:
     lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined, isNumber, isBoolean, isNull, isDate, toArray ]
   all:
     filename: radic.all
+    ignoredeps: [ github/oauthio ]
     modules: [ base, core,
               async/waterfall, async/each, cookie,
               crypt/md5, crypt/utf8,
