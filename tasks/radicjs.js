@@ -4,7 +4,7 @@ var _ = require('lodash');
 module.exports = function(grunt) {
     'use strict';
 
-    var config = grunt.file.readYAML('_config.yml');
+    var config = grunt.file.readYAML(grunt.option('configfile') || '_config.yml');
 
     var defaults = config.builds[config.default];
 
@@ -31,6 +31,7 @@ module.exports = function(grunt) {
                 filename: grunt.option('filename')
             }
         } else {
+
             build = build || config.default;
             var cfg = config.builds[build];
             var task = 'build:*:+' + cfg.modules.join(':+');

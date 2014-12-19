@@ -55,7 +55,7 @@ module.exports = function (grunt) {
             all: {
                 src: 'src/',
 
-                dest: "dist/<%= radicjs.filename %>.js",
+                dest: "<%= config.dest %>/<%= radicjs.filename %>.js",
                 minimum: [
                     "core",
                     "base"
@@ -68,29 +68,30 @@ module.exports = function (grunt) {
         },
         copy: {
             test: {
-                src: 'dist/radic.js',
+                src: '<%= config.dest %>/radic.js',
                 dest: 'test/radic.js'
             },
             packer: {
                 src: 'src/tpl/_pack.js',
-                dest: 'dist/_pack.js'
+                dest: '<%= config.dest %>/_pack.js'
             }
         },
         clean: {
             tmp: ['.tmp'],
             dist: ['dist'],
             lodash: ['src/tpl/_lodash.js', 'src/tpl/_lodash.min.js'],
-            packer: ['src/tpl/_pack.js', 'dist/_pack.js']
+            packer: ['src/tpl/_pack.js', '<%= config.dest %>/_pack.js']
         },
         preprocess: {
             options: {
                 context: {
-                    DEBUG: true
+                    DEBUG: true,
+                    srcDir: require('path').join(__dirname, 'src')
                 }
             },
             html: {
                 src: 'test/pages/index.html',
-                dest: 'dist/index.html'
+                dest: '<%= config.dest %>/index.html'
             },
             lodash: {
                 src: 'src/tpl/lodash.js',
@@ -100,8 +101,8 @@ module.exports = function (grunt) {
                 options: {
                     context: '<%= radicjs.packer %>'
                 },
-                src: 'dist/_pack.js',
-                dest: 'dist/packed/<%= radicjs.filename %>.packed.js'
+                src: '<%= config.dest %>/_pack.js',
+                dest: '<%= config.dest %>/packed/<%= radicjs.filename %>.packed.js'
             }
         },
         'string-replace': {
@@ -145,17 +146,17 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: {
-                    'dist/radic.min.js': ['dist/radic.js']
+                    '<%= config.dest %>/radic.min.js': ['<%= config.dest %>/radic.js']
                 }
             },
             radicjs: {
                 files: {
-                    'dist/<%= radicjs.filename %>.min.js': ['dist/<%= radicjs.filename %>.js']
+                    '<%= config.dest %>/<%= radicjs.filename %>.min.js': ['<%= config.dest %>/<%= radicjs.filename %>.js']
                 }
             },
             packer: {
                 files: {
-                    'dist/packed/<%= radicjs.filename %>.packed.min.js': ['dist/packed/<%= radicjs.filename %>.packed.js']
+                    '<%= config.dest %>/packed/<%= radicjs.filename %>.packed.min.js': ['<%= config.dest %>/packed/<%= radicjs.filename %>.packed.js']
                 }
             }
         },
