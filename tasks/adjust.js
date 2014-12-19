@@ -1,5 +1,8 @@
 var _ = require('lodash');
 var exec = require('child_process').exec;
+var async = require('async');
+var fs = require('fs-extra');
+var path = require('path');
 
 module.exports = function (grunt) {
 
@@ -8,23 +11,80 @@ module.exports = function (grunt) {
     grunt.log.header = function () {
     };
 
-    function createTag(callback) {
+    function getVersion(){
+        var v = grunt.file.readJSON('package.json').version.split('.');
+        return {
+            full: v.join('.'),
+            major: v[0],
+            minor: v[1],
+            patch: v[2],
+            split: v
+        };
+    }
+    function publishVersion(type, callback) {
+
         return function (error, stdout, stderr) {
-            callback();
+            var publish = grunt.config('publish');
+
+            var oldVersion = getVersion();
+            var newVersion = oldVersion.split;
+            if(type === 'patch') newVersion[2]++;
+            if(type === 'minor') newVersion[1]++;
+            if(type === 'major') newVersion[0]++;
+            newVersion = newVersion.join('.');
+
+            var tasks = {
+
+                bowerVersion: function (done) { // FIRST
+                    var bwfile = path.join(process.cwd(), 'bower.json');
+                    var bw = fs.readJsonFileSync(bwfile);
+                    bw.version = newVersion;
+                    fs.outputJSONSync(bwfile, bw);
+                },
+                npmVersion: function(done){ // SECOND
+                    exec('npm version ' + type, function (error, stdout) {
+                        done(error);
+                    });
+                },
+                gitPush: function (done) { // THIRD
+                    exec('git push -u origin v' + newVersion, function (error, stdout) {
+                        grunt.log.ok('Created and pushed new version: ' + newVersion);
+                        done(error);
+                    });
+                },
+                npmPublish: function (done) {
+                    exec('npm publish', function (error, stdout) {
+                        grunt.log.ok('Published NPM package');
+                        done(error);
+                    });
+                }
+            };
+            var steps = [];
+            steps.push(tasks.bowerVersion, tasks.npmVersion, tasks.gitPush);
+            if (publish.npm === true) steps.push(tasks.npmPublish);
+
+            async.waterfall(steps, function (err) {
+                if (err) return grunt.fail.fatal(error);
+                callback();
+            });
+
+
         };
     }
 
-    grunt.registerTask('tag:patch', 'Add a new version. Increase patch version by 1.', function () {
-        var taskDone = this.async();
-        exec('npm version patch', createTag(taskDone));
+    grunt.registerTask('publish:patch', 'Publish a new version. Increase patch version by 1.', function () {
+        exec('patch', publishVersion(this.async()));
     });
-    grunt.registerTask('tag:minor', 'Add a new version. Increase minor version by 1.', function () {
-        var taskDone = this.async();
-        exec('npm version minor', createTag(taskDone));
+    grunt.registerTask('publish:minor', 'Publish a new version. Increase minor version by 1.', function () {
+        exec('minor', publishVersion(this.async()));
     });
-    grunt.registerTask('tag:major', 'Add a new version. Increase major version by 1.', function () {
-        var taskDone = this.async();
-        exec('npm version major', createTag(taskDone));
+    grunt.registerTask('publish:major', 'Publish a new version. Increase major version by 1.', function () {
+        exec('major', publishVersion(this.async()));
+    });
+
+    grunt.registerTask('publish:docs', 'Build & Publish documentation.', function () {
+      //  var taskDone = this.async();
+        //exec('npm version major', createTag(taskDone));
     });
 
     grunt.config('availabletasks', {           // task
@@ -36,7 +96,7 @@ module.exports = function (grunt) {
                 groups: {
                     'Development': ['watch', 'serve', 'radicjs', 'docs:build'],
                     'Testing': ['test'],
-                    'Deploying': ['tag:patch', 'tag:minor', 'tag:major', 'publish', 'docs:publish']
+                    'Deploying': ['publish:patch', 'publish:minor', 'publish:major', 'publish:docs']
                 }
             }
         }

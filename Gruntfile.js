@@ -17,6 +17,10 @@ module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
+        publish: {
+            npm: true,
+            bower: true
+        },
         config: config,
         radicjs: {
             filename: defaults.filename
