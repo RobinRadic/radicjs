@@ -29,8 +29,15 @@ module.exports = function (grunt) {
         var oldVersion = getVersion();
         var newVersion = oldVersion.split;
         if (type === 'patch') newVersion[2]++;
-        if (type === 'minor') newVersion[1]++;
-        if (type === 'major') newVersion[0]++;
+        if (type === 'minor') {
+            newVersion[2] = 0;
+            newVersion[1]++;
+        }
+        if (type === 'major') {
+            newVersion[2] = 0;
+            newVersion[1] = 0;
+            newVersion[0]++;
+        }
         newVersion = newVersion.join('.');
 
         var tasks = {
