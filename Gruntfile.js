@@ -8,7 +8,6 @@ module.exports = function (grunt) {
 
     var configFilePath = grunt.option('configfile') || '_config.yml';
     require('load-grunt-tasks')(grunt);
-    require('time-grunt')(grunt);
 
     var pkg = grunt.file.readJSON('package.json');
 
@@ -162,6 +161,13 @@ module.exports = function (grunt) {
         },
         shell: {
             lodash: {
+                options: {
+                    stdout: false,
+                    callback: function(err, stdout, stderr, cb) {
+                        grunt.log.ok('Created custom lodash functions.');
+                        cb();
+                    }
+                },
                 command: 'lodash underscore include=<%= radicjs.lodash %> exports=none -o src/tpl/_lodash.js'
             },
             test: {
@@ -197,10 +203,22 @@ module.exports = function (grunt) {
     grunt.loadTasks("tasks");
 
 
+    grunt.registerTask('test', 'Run tests', function (target) {
+
+    });
+    grunt.registerTask('docs:build', 'Build documentation', function (target) {
+
+    });
+    grunt.registerTask('docs:publish', 'Commit and push all documentation to gh-pages', function (target) {
+
+    });
+    grunt.registerTask('publish', 'Commit and push all to master, push all tags, publish npm and bower.', function (target) {
+
+    });
 
     grunt.registerTask('dist', [ 'build', 'uglify', 'copy:test' ]);
 
-    grunt.registerTask('serve', function (target) {
+    grunt.registerTask('serve', 'Create a test server hosting the code with LiveReload enabled', function (target) {
         if (target === 'dist') {
             return grunt.task.run(['build', 'connect:dist:keepalive']);
         }
@@ -211,4 +229,5 @@ module.exports = function (grunt) {
         ]);
     });
 
+    //require('./tasks')
 };

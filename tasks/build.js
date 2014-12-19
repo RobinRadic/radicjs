@@ -181,7 +181,7 @@ module.exports = function( grunt ) {
                     }
                 };
 
-            grunt.log.writeflags({flag: flag, flags: flags, optIn: optIn, index: index }, 'build');
+            grunt.verbose.writeflags({flag: flag, flags: flags, optIn: optIn, index: index }, 'build');
 
             config.baseUrl = this.data.src;
             config.wrap.startFile = this.data.src + "/intro.js";

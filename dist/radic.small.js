@@ -1821,4 +1821,8 @@
         return radic.isUndefined(val) === false;
     };
 
+
+    /**
+     * @namespace radic
+     */
 }));
