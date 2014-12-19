@@ -21,7 +21,12 @@ builds:
   all:
     filename: radic.all
     modules: [ base, core,
-              async/waterfall, async/each, cookie, crypt/md5, crypt/utf8, github, json, # sdf
-              spinner, sprintf, storage, template, template/general, template/comparisons, widgets, wordwrap,
+              async/waterfall, async/each, cookie,
+              crypt/md5, crypt/utf8,
+              github, json,
+              spinner, sprintf, storage,
+              template, template/general, template/comparisons,
+              time, time/ago,
+              widgets, wordwrap,
               exports/amd, exports/global ]
     lodash: [ omit, pick, values, keys, where, cloneDeep, isUndefined, isNumber, isBoolean, isNull, isDate, toArray ]
