@@ -73,13 +73,13 @@ module.exports = function (grunt) {
     }
 
     grunt.registerTask('publish:patch', 'Publish a new version. Increase patch version by 1.', function () {
-        exec('patch', publishVersion(this.async()));
+        publishVersion('patch', this.async());
     });
     grunt.registerTask('publish:minor', 'Publish a new version. Increase minor version by 1.', function () {
-        exec('minor', publishVersion(this.async()));
+        publishVersion('minor', this.async());
     });
     grunt.registerTask('publish:major', 'Publish a new version. Increase major version by 1.', function () {
-        exec('major', publishVersion(this.async()));
+        publishVersion('major', this.async());
     });
 
     grunt.registerTask('publish:docs', 'Build & Publish documentation.', function () {
