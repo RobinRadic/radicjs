@@ -60,7 +60,7 @@ define([
     };
 
     storage.clear = function () {
-        window['localStorage'].clear();
+        window.localStorage.clear();
     };
 
 
