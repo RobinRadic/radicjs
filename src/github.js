@@ -194,10 +194,10 @@ define([
                     if (radic.defined(cache) && !radic.isNull(cache)) {
                         //this.state = 'success';
                         console.log('cache jsonp', typeof cache);
-                        if(this.async === false) {
+                        if (this.async === false) {
                             return {data: cache.data, meta: cache.meta};
                         }
-                        if(radic.isFunction(callback)) {
+                        if (radic.isFunction(callback)) {
                             callback.call(this, cache.data, cache.meta);
                         }
                         return this;
@@ -277,13 +277,12 @@ define([
             send: function send(callback, verb) {
 
 
-
                 var cacheKey = radic.md5(JSON.stringify({path: this.path, data: this.data}));
                 if (this.cache) {
-                    var cache = radic.storage.get(cacheKey, {json: true });
+                    var cache = radic.storage.get(cacheKey, {json: true});
                     if (radic.defined(cache) && !radic.isNull(cache)) {
                         console.log('cache xhr', typeof cache, cache);
-                        if(this.async === true) {
+                        if (this.async === true) {
                             callback.call(this, cache.data, cache.meta);
                             return this;
                         } else {
@@ -305,8 +304,8 @@ define([
 
 
                         var headerJson = {};
-                        xhr.getAllResponseHeaders().split("\n").forEach(function(a){
-                            if(radic.isString(a) && a.length > 0){
+                        xhr.getAllResponseHeaders().split("\n").forEach(function (a) {
+                            if (radic.isString(a) && a.length > 0) {
                                 var header = a.split(':');
                                 headerJson[header[0]] = header[1];
                             }
@@ -610,7 +609,13 @@ define([
         events: {SLICE: 1, GET: ['page', 'per_page']}
     }));
 
-    var makeGithubClient = function(Client, user, password){
+    radic.githubCredentials = {
+        user: null,
+        password: null,
+        token: null
+    };
+
+    var makeGithubClient = function (Client, user, password) {
         console.log('make client', typeof Client, typeof user, typeof password);
         this.github = new Client(user, password);
 
@@ -631,28 +636,39 @@ define([
             });
         }.bind(this);
 
-        this.github.async = function(enabled){
+        this.github.async = function (enabled) {
             this.github.transport.async = radic.isBoolean(enabled) ? enabled : true;
         }.bind(this);
 
-        this.github.jsonp = function(){
+        this.github.jsonp = function () {
             this.github.setTransport('jsonp', 'https://api.github.com');
         }.bind(this);
 
-        this.github.xhr = function(){
+        this.github.xhr = function () {
             this.github.setTransport('xhr', 'https://api.github.com');
         }.bind(this);
 
     }.bind(radic, GithubClient);
 
-    makeGithubClient();
-    /*
-    radic.extend({
-        _github: makeGithubClient
-    });
 
-    radic._github();
-    */
+    jQuery(document).ready(function () {
+
+        if (radic.githubCredentials.token) {
+            makeGithubClient(radic.githubCredentials.token);
+        } else if (radic.githubCredentials.password) {
+            makeGithubClient(radic.githubCredentials.user, radic.githubCredentials.password);
+        } else {
+            makeGithubClient();
+        }
+
+    });
+    /*
+     radic.extend({
+     _github: makeGithubClient
+     });
+
+     radic._github();
+     */
 
     return radic;
 });
