@@ -3,6 +3,9 @@ define([
     "./base"
 ], function (radic) {
 
+    /**
+     * @namespace radic
+     */
     return radic;
 
 });

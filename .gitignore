@@ -4,5 +4,5 @@
 /vendor
 /.idea/
 /test/vendor
-
+/docs
 /.yo-rc.json
