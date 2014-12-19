@@ -11,7 +11,7 @@ module.exports = function (grunt) {
     grunt.log.header = function () {
     };
 
-    function getVersion(){
+    function getVersion() {
         var v = grunt.file.readJSON('package.json').version.split('.');
         return {
             full: v.join('.'),
@@ -21,55 +21,55 @@ module.exports = function (grunt) {
             split: v
         };
     }
+
     function publishVersion(type, callback) {
 
-        return function (error, stdout, stderr) {
-            var publish = grunt.config('publish');
+        var publish = grunt.config('publish');
 
-            var oldVersion = getVersion();
-            var newVersion = oldVersion.split;
-            if(type === 'patch') newVersion[2]++;
-            if(type === 'minor') newVersion[1]++;
-            if(type === 'major') newVersion[0]++;
-            newVersion = newVersion.join('.');
+        var oldVersion = getVersion();
+        var newVersion = oldVersion.split;
+        if (type === 'patch') newVersion[2]++;
+        if (type === 'minor') newVersion[1]++;
+        if (type === 'major') newVersion[0]++;
+        newVersion = newVersion.join('.');
 
-            var tasks = {
+        var tasks = {
 
-                bowerVersion: function (done) { // FIRST
-                    var bwfile = path.join(process.cwd(), 'bower.json');
-                    var bw = fs.readJsonFileSync(bwfile);
-                    bw.version = newVersion;
-                    fs.outputJSONSync(bwfile, bw);
-                },
-                npmVersion: function(done){ // SECOND
-                    exec('npm version ' + type, function (error, stdout) {
-                        done(error);
-                    });
-                },
-                gitPush: function (done) { // THIRD
-                    exec('git push -u origin v' + newVersion, function (error, stdout) {
-                        grunt.log.ok('Created and pushed new version: ' + newVersion);
-                        done(error);
-                    });
-                },
-                npmPublish: function (done) {
-                    exec('npm publish', function (error, stdout) {
-                        grunt.log.ok('Published NPM package');
-                        done(error);
-                    });
-                }
-            };
-            var steps = [];
-            steps.push(tasks.bowerVersion, tasks.npmVersion, tasks.gitPush);
-            if (publish.npm === true) steps.push(tasks.npmPublish);
-
-            async.waterfall(steps, function (err) {
-                if (err) return grunt.fail.fatal(error);
-                callback();
-            });
-
-
+            bowerVersion: function (done) { // FIRST
+                var bwfile = path.join(process.cwd(), 'bower.json');
+                var bw = fs.readJsonFileSync(bwfile);
+                bw.version = newVersion;
+                fs.outputJSONSync(bwfile, bw);
+                done(null);
+            },
+            npmVersion: function (done) { // SECOND
+                exec('npm version ' + type, function (error, stdout) {
+                    done(error);
+                });
+            },
+            gitPush: function (done) { // THIRD
+                exec('git push -u origin v' + newVersion, function (error, stdout) {
+                    grunt.log.ok('Created and pushed new version: ' + newVersion);
+                    done(error);
+                });
+            },
+            npmPublish: function (done) {
+                exec('npm publish', function (error, stdout) {
+                    grunt.log.ok('Published NPM package');
+                    done(error);
+                });
+            }
         };
+        var steps = [];
+        steps.push(tasks.bowerVersion, tasks.npmVersion, tasks.gitPush);
+        if (publish.npm === true) steps.push(tasks.npmPublish);
+
+        async.waterfall(steps, function (err) {
+            if (err) return grunt.fail.fatal(err);
+            callback();
+        });
+
+
     }
 
     grunt.registerTask('publish:patch', 'Publish a new version. Increase patch version by 1.', function () {
@@ -83,7 +83,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('publish:docs', 'Build & Publish documentation.', function () {
-      //  var taskDone = this.async();
+        //  var taskDone = this.async();
         //exec('npm version major', createTag(taskDone));
     });
 
