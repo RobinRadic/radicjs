@@ -2,9 +2,21 @@ define([
     "./core"
 ], function( radic ) {
 
-    radic.template = Handlebars;
-    radic.template.get = function(name, data){
-        var template = radic.template.templates[name];
+    /**
+     * @mixin
+     * @alias radic/template
+     */
+    var template = Handlebars;
+
+    /**
+     * Get a template
+     *
+     * @param name
+     * @param data
+     * @returns {*}
+     */
+    template.get = function(name, data){
+        var template = template[name];
         if(radic.isUndefined(data)){
             return template;
         }
@@ -13,6 +25,6 @@ define([
     };
 
 
-    return radic;
+    radic.template = template;
 
 });

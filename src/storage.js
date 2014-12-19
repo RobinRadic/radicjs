@@ -3,8 +3,25 @@ define([
     "./json"
 ], function(radic, json) {
 
+
+
+    /**
+     * @mixin
+     * @alias radic/storage
+     */
     var storage = {};
 
+
+    /**
+     * Extends the base radic object
+     *
+     *
+     * @param {Function} callback - The object to extend radic with
+     * @example
+     * radic.storage.on(function(){
+     *      // do something
+     * }
+     */
     storage.on = function (callback) {
         if (window.addEventListener) {
             window.addEventListener("storage", callback, false);

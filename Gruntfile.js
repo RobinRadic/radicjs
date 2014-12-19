@@ -210,9 +210,9 @@ module.exports = function (grunt) {
     grunt.registerTask('test', 'Run tests', function (target) {
 
     });
-    grunt.registerTask('docs:build', 'Build documentation', function (target) {
 
-    });
+
+
     grunt.registerTask('docs:publish', 'Commit and push all documentation to gh-pages', function (target) {
 
     });

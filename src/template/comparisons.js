@@ -1,7 +1,7 @@
 define([
     "../core",
     "../template"
-], function (radic) {
+], function (radic, template) {
 
     radic.template.expressionRegistry = function () {
         var isArray = function (value) {
@@ -103,5 +103,5 @@ define([
         return eR;
     }();
 
-    radic.template.expressionRegistry.add('same', function (left, right) { return left === right; });
+    template.expressionRegistry.add('same', function (left, right) { return left === right; });
 });

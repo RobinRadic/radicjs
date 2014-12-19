@@ -4,12 +4,35 @@
 //
 
 
-    var radic = {},
+    var version = "undefined";
 
-        version = "undefined";
+    /**
+     * @name radic
+     * @constructor
+     * @mixes radic/storage
+     * @mixes radic/template
+     * @mixes radic/template/comparisons
+     */
+    function radic(){
 
-    radic.extend = function(arg){
-        $.extend(radic, arg);
+    }
+
+
+    /**
+     * Extends the base radic object
+     *
+     * @param {Object} obj - The object to extend radic with
+     * @example
+     * radic.extend({
+     *      storage: {
+     *          print: function(what){
+     *              console.log(what);
+     *          }
+     *      }
+     * });
+     */
+    radic.extend = function(obj){
+        $.extend(radic, obj);
     };
 
 
@@ -24,23 +47,23 @@
          * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
          * Available under MIT license <http://lodash.com/license>
          */
-        
-        
+
+
           /** Used as a safe reference for `undefined` in pre ES5 environments */
           var undefined;
-        
+
           /** Used to pool arrays and objects used internally */
           var arrayPool = [];
-        
+
           /** Used internally to indicate various things */
           var indicatorObject = {};
-        
+
           /** Used as the max size of the `arrayPool` and `objectPool` */
           var maxPoolSize = 40;
-        
+
           /** Used to match regexp flags from their coerced string values */
           var reFlags = /\w*$/;
-        
+
           /** `Object#toString` result shortcuts */
           var argsClass = '[object Arguments]',
               arrayClass = '[object Array]',
@@ -51,7 +74,7 @@
               objectClass = '[object Object]',
               regexpClass = '[object RegExp]',
               stringClass = '[object String]';
-        
+
           /** Used to identify object classifications that `_.clone` supports */
           var cloneableClasses = {};
           cloneableClasses[funcClass] = false;
@@ -59,7 +82,7 @@
           cloneableClasses[boolClass] = cloneableClasses[dateClass] =
           cloneableClasses[numberClass] = cloneableClasses[objectClass] =
           cloneableClasses[regexpClass] = cloneableClasses[stringClass] = true;
-        
+
           /** Used to determine if values are of the language type Object */
           var objectTypes = {
             'boolean': false,
@@ -69,18 +92,18 @@
             'string': false,
             'undefined': false
           };
-        
+
           /** Used as a reference to the global object */
           var root = (objectTypes[typeof window] && window) || this;
-        
+
           /** Detect free variable `global` from Node.js or Browserified code and use it as `root` */
           var freeGlobal = objectTypes[typeof global] && global;
           if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal)) {
             root = freeGlobal;
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * The base implementation of `_.indexOf` without support for binary searches
            * or `fromIndex` constraints.
@@ -94,7 +117,7 @@
           function baseIndexOf(array, value, fromIndex) {
             var index = (fromIndex || 0) - 1,
                 length = array ? array.length : 0;
-        
+
             while (++index < length) {
               if (array[index] === value) {
                 return index;
@@ -102,7 +125,7 @@
             }
             return -1;
           }
-        
+
           /**
            * Gets an array from the array pool or creates a new one if the pool is empty.
            *
@@ -112,7 +135,7 @@
           function getArray() {
             return arrayPool.pop() || [];
           }
-        
+
           /**
            * Releases the given array back to the array pool.
            *
@@ -125,7 +148,7 @@
               arrayPool.push(array);
             }
           }
-        
+
           /**
            * Slices the `collection` from the `start` index up to, but not including,
            * the `end` index.
@@ -147,15 +170,15 @@
             var index = -1,
                 length = end - start || 0,
                 result = Array(length < 0 ? 0 : length);
-        
+
             while (++index < length) {
               result[index] = array[start + index];
             }
             return result;
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Used for `Array` method references.
            *
@@ -163,31 +186,31 @@
            * avoids issues in Narwhal.
            */
           var arrayRef = [];
-        
+
           /** Used for native method references */
           var objectProto = Object.prototype;
-        
+
           /** Used to resolve the internal [[Class]] of values */
           var toString = objectProto.toString;
-        
+
           /** Used to detect if a method is native */
           var reNative = RegExp('^' +
             String(toString)
               .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
               .replace(/toString| for [^\]]+/g, '.*?') + '$'
           );
-        
+
           /** Native method shortcuts */
           var hasOwnProperty = objectProto.hasOwnProperty,
               push = arrayRef.push,
               propertyIsEnumerable = objectProto.propertyIsEnumerable;
-        
+
           /* Native method shortcuts for methods with the same name as other `lodash` methods */
           var nativeCreate = isNative(nativeCreate = Object.create) && nativeCreate,
               nativeIsArray = isNative(nativeIsArray = Array.isArray) && nativeIsArray,
               nativeKeys = isNative(nativeKeys = Object.keys) && nativeKeys,
               nativeMax = Math.max;
-        
+
           /** Used to lookup a built-in constructor by [[Class]] */
           var ctorByClass = {};
           ctorByClass[arrayClass] = Array;
@@ -198,9 +221,9 @@
           ctorByClass[numberClass] = Number;
           ctorByClass[regexpClass] = RegExp;
           ctorByClass[stringClass] = String;
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Creates a `lodash` object which wraps the given value to enable intuitive
            * method chaining.
@@ -269,9 +292,9 @@
           function lodash() {
             // no operation performed
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * The base implementation of `_.bind` that creates the bound function and
            * sets its meta data.
@@ -284,7 +307,7 @@
             var func = bindData[0],
                 partialArgs = bindData[2],
                 thisArg = bindData[4];
-        
+
             function bound() {
               // `Function#bind` spec
               // http://es5.github.io/#x15.3.4.5
@@ -307,7 +330,7 @@
             }
             return bound;
           }
-        
+
           /**
            * The base implementation of `_.clone` without argument juggling or support
            * for `thisArg` binding.
@@ -339,11 +362,11 @@
                 case boolClass:
                 case dateClass:
                   return new ctor(+value);
-        
+
                 case numberClass:
                 case stringClass:
                   return new ctor(value);
-        
+
                 case regexpClass:
                   result = ctor(value.source, reFlags.exec(value));
                   result.lastIndex = value.lastIndex;
@@ -358,7 +381,7 @@
               var initedStack = !stackA;
               stackA || (stackA = getArray());
               stackB || (stackB = getArray());
-        
+
               var length = stackA.length;
               while (length--) {
                 if (stackA[length] == value) {
@@ -387,19 +410,19 @@
             // and associate it with its clone
             stackA.push(value);
             stackB.push(result);
-        
+
             // recursively populate clone (susceptible to call stack limits)
             (isArr ? forEach : forOwn)(value, function(objValue, key) {
               result[key] = baseClone(objValue, isDeep, callback, stackA, stackB);
             });
-        
+
             if (initedStack) {
               releaseArray(stackA);
               releaseArray(stackB);
             }
             return result;
           }
-        
+
           /**
            * The base implementation of `_.create` without support for assigning
            * properties to the created object.
@@ -425,7 +448,7 @@
               };
             }());
           }
-        
+
           /**
            * The base implementation of `_.createCallback` without support for creating
            * "_.pluck" or "_.where" style callbacks.
@@ -460,7 +483,7 @@
             }
             return bind(func, thisArg);
           }
-        
+
           /**
            * The base implementation of `createWrapper` that creates the wrapper and
            * sets its meta data.
@@ -476,13 +499,13 @@
                 partialRightArgs = bindData[3],
                 thisArg = bindData[4],
                 arity = bindData[5];
-        
+
             var isBind = bitmask & 1,
                 isBindKey = bitmask & 2,
                 isCurry = bitmask & 4,
                 isCurryBound = bitmask & 8,
                 key = func;
-        
+
             function bound() {
               var thisBinding = isBind ? thisArg : this;
               if (partialArgs) {
@@ -512,7 +535,7 @@
             }
             return bound;
           }
-        
+
           /**
            * The base implementation of `_.difference` that accepts a single array
            * of values to exclude.
@@ -527,7 +550,7 @@
                 indexOf = getIndexOf(),
                 length = array ? array.length : 0,
                 result = [];
-        
+
             while (++index < length) {
               var value = array[index];
               if (indexOf(values, value) < 0) {
@@ -536,7 +559,7 @@
             }
             return result;
           }
-        
+
           /**
            * The base implementation of `_.flatten` without support for callback
            * shorthands or `thisArg` binding.
@@ -552,10 +575,10 @@
             var index = (fromIndex || 0) - 1,
                 length = array ? array.length : 0,
                 result = [];
-        
+
             while (++index < length) {
               var value = array[index];
-        
+
               if (value && typeof value == 'object' && typeof value.length == 'number'
                   && (isArray(value) || isArguments(value))) {
                 // recursively flatten arrays (susceptible to call stack limits)
@@ -565,7 +588,7 @@
                 var valIndex = -1,
                     valLength = value.length,
                     resIndex = result.length;
-        
+
                 result.length += valLength;
                 while (++valIndex < valLength) {
                   result[resIndex++] = value[valIndex];
@@ -576,7 +599,7 @@
             }
             return result;
           }
-        
+
           /**
            * Creates a function that, when called, either curries or invokes `func`
            * with an optional `this` binding and partially applied arguments.
@@ -606,7 +629,7 @@
                 isCurryBound = bitmask & 8,
                 isPartial = bitmask & 16,
                 isPartialRight = bitmask & 32;
-        
+
             if (!isBindKey && !isFunction(func)) {
               throw new TypeError;
             }
@@ -622,7 +645,7 @@
             var creater = (bitmask == 1 || bitmask === 17) ? baseBind : baseCreateWrapper;
             return creater([func, bitmask, partialArgs, partialRightArgs, thisArg, arity]);
           }
-        
+
           /**
            * Gets the appropriate "indexOf" function. If the `_.indexOf` method is
            * customized, this method returns the custom method, otherwise it returns
@@ -635,7 +658,7 @@
             var result = (result = lodash.indexOf) === indexOf ? baseIndexOf : result;
             return result;
           }
-        
+
           /**
            * Checks if `value` is a native function.
            *
@@ -646,9 +669,9 @@
           function isNative(value) {
             return typeof value == 'function' && reNative.test(value);
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Checks if `value` is an `arguments` object.
            *
@@ -676,7 +699,7 @@
                 hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee') || false;
             };
           }
-        
+
           /**
            * Checks if `value` is an array.
            *
@@ -698,7 +721,7 @@
             return value && typeof value == 'object' && typeof value.length == 'number' &&
               toString.call(value) == arrayClass || false;
           };
-        
+
           /**
            * A fallback implementation of `Object.keys` which produces an array of the
            * given object's own enumerable property names.
@@ -719,7 +742,7 @@
               }
             return result
           };
-        
+
           /**
            * Creates an array composed of the own enumerable property names of an object.
            *
@@ -739,9 +762,9 @@
             }
             return nativeKeys(object);
           };
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Assigns own enumerable properties of source object(s) to the destination
            * object. Subsequent sources will overwrite property assignments of previous
@@ -786,7 +809,7 @@
             }
             return object;
           }
-        
+
           /**
            * Creates a deep clone of `value`. If a callback is provided it will be
            * executed to produce the cloned values. If the callback returns `undefined`
@@ -831,7 +854,7 @@
           function cloneDeep(value, callback, thisArg) {
             return baseClone(value, true, typeof callback == 'function' && baseCreateCallback(callback, thisArg, 1));
           }
-        
+
           /**
            * Iterates over own and inherited enumerable properties of an object,
            * executing the callback for each property. The callback is bound to `thisArg`
@@ -872,7 +895,7 @@
               }
             return result
           };
-        
+
           /**
            * Iterates over own enumerable properties of an object, executing the callback
            * for each property. The callback is bound to `thisArg` and invoked with three
@@ -905,7 +928,7 @@
               }
             return result
           };
-        
+
           /**
            * Checks if `value` is a boolean value.
            *
@@ -923,7 +946,7 @@
             return value === true || value === false ||
               value && typeof value == 'object' && toString.call(value) == boolClass || false;
           }
-        
+
           /**
            * Checks if `value` is a date.
            *
@@ -940,7 +963,7 @@
           function isDate(value) {
             return value && typeof value == 'object' && toString.call(value) == dateClass || false;
           }
-        
+
           /**
            * Checks if `value` is empty. Arrays, strings, or `arguments` objects with a
            * length of `0` and objects with no own enumerable properties are considered
@@ -976,7 +999,7 @@
             }
             return true;
           }
-        
+
           /**
            * Checks if `value` is a function.
            *
@@ -999,7 +1022,7 @@
               return typeof value == 'function' && toString.call(value) == funcClass;
             };
           }
-        
+
           /**
            * Checks if `value` is the language type of Object.
            * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
@@ -1027,7 +1050,7 @@
             // http://code.google.com/p/v8/issues/detail?id=2291
             return !!(value && objectTypes[typeof value]);
           }
-        
+
           /**
            * Checks if `value` is `null`.
            *
@@ -1047,7 +1070,7 @@
           function isNull(value) {
             return value === null;
           }
-        
+
           /**
            * Checks if `value` is a number.
            *
@@ -1067,7 +1090,7 @@
             return typeof value == 'number' ||
               value && typeof value == 'object' && toString.call(value) == numberClass || false;
           }
-        
+
           /**
            * Checks if `value` is a string.
            *
@@ -1085,7 +1108,7 @@
             return typeof value == 'string' ||
               value && typeof value == 'object' && toString.call(value) == stringClass || false;
           }
-        
+
           /**
            * Checks if `value` is `undefined`.
            *
@@ -1102,7 +1125,7 @@
           function isUndefined(value) {
             return typeof value == 'undefined';
           }
-        
+
           /**
            * Creates a shallow clone of `object` excluding the specified properties.
            * Property names may be specified as individual arguments or as arrays of
@@ -1135,18 +1158,18 @@
               props.push(key);
             });
             props = baseDifference(props, baseFlatten(arguments, true, false, 1));
-        
+
             var index = -1,
                 length = props.length,
                 result = {};
-        
+
             while (++index < length) {
               var key = props[index];
               result[key] = object[key];
             }
             return result;
           }
-        
+
           /**
            * Creates a shallow clone of `object` composed of the specified properties.
            * Property names may be specified as individual arguments or as arrays of
@@ -1179,7 +1202,7 @@
                 props = baseFlatten(arguments, true, false, 1),
                 length = props.length,
                 result = {};
-        
+
             while (++index < length) {
               var key = props[index];
               if (key in object) {
@@ -1188,7 +1211,7 @@
             }
             return result;
           }
-        
+
           /**
            * Creates an array composed of the own enumerable property values of `object`.
            *
@@ -1207,15 +1230,15 @@
                 props = keys(object),
                 length = props.length,
                 result = Array(length);
-        
+
             while (++index < length) {
               result[index] = object[props[index]];
             }
             return result;
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Iterates over elements of a collection, returning an array of all elements
            * the callback returns truey for. The callback is bound to `thisArg` and
@@ -1259,10 +1282,10 @@
           function filter(collection, callback, thisArg) {
             var result = [];
             callback = createCallback(callback, thisArg, 3);
-        
+
             var index = -1,
                 length = collection ? collection.length : 0;
-        
+
             if (typeof length == 'number') {
               while (++index < length) {
                 var value = collection[index];
@@ -1279,7 +1302,7 @@
             }
             return result;
           }
-        
+
           /**
            * Iterates over elements of a collection, returning the first element that
            * the callback returns truey for. The callback is bound to `thisArg` and
@@ -1325,10 +1348,10 @@
            */
           function find(collection, callback, thisArg) {
             callback = createCallback(callback, thisArg, 3);
-        
+
             var index = -1,
                 length = collection ? collection.length : 0;
-        
+
             if (typeof length == 'number') {
               while (++index < length) {
                 var value = collection[index];
@@ -1347,7 +1370,7 @@
               return result;
             }
           }
-        
+
           /**
            * Iterates over elements of a collection, executing the callback for each
            * element. The callback is bound to `thisArg` and invoked with three arguments;
@@ -1377,7 +1400,7 @@
           function forEach(collection, callback, thisArg) {
             var index = -1,
                 length = collection ? collection.length : 0;
-        
+
             callback = callback && typeof thisArg == 'undefined' ? callback : baseCreateCallback(callback, thisArg, 3);
             if (typeof length == 'number') {
               while (++index < length) {
@@ -1389,7 +1412,7 @@
               forOwn(collection, callback);
             }
           }
-        
+
           /**
            * Creates an array of values by running each element in the collection
            * through the callback. The callback is bound to `thisArg` and invoked with
@@ -1432,7 +1455,7 @@
           function map(collection, callback, thisArg) {
             var index = -1,
                 length = collection ? collection.length : 0;
-        
+
             callback = createCallback(callback, thisArg, 3);
             if (typeof length == 'number') {
               var result = Array(length);
@@ -1447,7 +1470,7 @@
             }
             return result;
           }
-        
+
           /**
            * Converts the `collection` to an array.
            *
@@ -1470,7 +1493,7 @@
             }
             return values(collection);
           }
-        
+
           /**
            * Performs a deep comparison of each element in a `collection` to the given
            * `properties` object, returning an array of all elements that have equivalent
@@ -1501,9 +1524,9 @@
               ? undefined
               : (first ? find : filter)(collection, properties);
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Gets the index at which the first occurrence of `value` is found using
            * strict equality for comparisons, i.e. `===`. If the array is already sorted
@@ -1538,7 +1561,7 @@
             }
             return baseIndexOf(array, value, fromIndex);
           }
-        
+
           /**
            * Uses a binary search to determine the smallest index at which a value
            * should be inserted into a given sorted array in order to maintain the sort
@@ -1590,11 +1613,11 @@
           function sortedIndex(array, value, callback, thisArg) {
             var low = 0,
                 high = array ? array.length : low;
-        
+
             // explicitly reference `identity` for better inlining in Firefox
             callback = callback ? createCallback(callback, thisArg, 1) : identity;
             value = callback(value);
-        
+
             while (low < high) {
               var mid = (low + high) >>> 1;
               (callback(array[mid]) < value)
@@ -1603,9 +1626,9 @@
             }
             return low;
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Creates a function that, when called, invokes `func` with the `this`
            * binding of `thisArg` and prepends any additional `bind` arguments to those
@@ -1633,9 +1656,9 @@
               ? createWrapper(func, 17, slice(arguments, 2), null, thisArg)
               : createWrapper(func, 1, null, null, thisArg);
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * Produces a callback bound to an optional `thisArg`. If `func` is a property
            * name the created callback will return the property value for a given element.
@@ -1680,7 +1703,7 @@
             return function(object) {
               var length = props.length,
                   result = false;
-        
+
               while (length--) {
                 if (!(result = object[props[length]] === func[props[length]])) {
                   break;
@@ -1689,7 +1712,7 @@
               return result;
             };
           }
-        
+
           /**
            * This method returns the first argument provided to it.
            *
@@ -1707,7 +1730,7 @@
           function identity(value) {
             return value;
           }
-        
+
           /**
            * A no-operation function.
            *
@@ -1723,7 +1746,7 @@
           function noop() {
             // no operation performed
           }
-        
+
           /**
            * Creates a "_.pluck" style function, which returns the `key` value of a
            * given object.
@@ -1753,9 +1776,9 @@
               return object[key];
             };
           }
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           lodash.bind = bind;
           lodash.filter = filter;
           lodash.forEach = forEach;
@@ -1766,15 +1789,15 @@
           lodash.toArray = toArray;
           lodash.values = values;
           lodash.where = where;
-        
+
           // add aliases
           lodash.collect = map;
           lodash.each = forEach;
           lodash.extend = assign;
           lodash.select = filter;
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           lodash.cloneDeep = cloneDeep;
           lodash.find = find;
           lodash.identity = identity;
@@ -1791,11 +1814,11 @@
           lodash.isString = isString;
           lodash.isUndefined = isUndefined;
           lodash.sortedIndex = sortedIndex;
-        
+
           lodash.detect = find;
-        
+
           /*--------------------------------------------------------------------------*/
-        
+
           /**
            * The semantic version number.
            *
@@ -1804,9 +1827,9 @@
            * @type string
            */
           lodash.VERSION = '2.4.1';
-        
-        
-        
+
+
+
 
         delete lodash.VERSION;
         delete lodash.extend;
@@ -1821,10 +1844,6 @@
         return radic.isUndefined(val) === false;
     };
 
-
-    /**
-     * @namespace radic
-     */
 var makeIterator = function (tasks) {
         var makeCallback = function (index) {
             var fn = function () {
@@ -2404,8 +2423,25 @@ var _each = function(arr, iterator) {
     });
 
 
+
+
+    /**
+     * @mixin
+     * @alias radic/storage
+     */
     var storage = {};
 
+
+    /**
+     * Extends the base radic object
+     *
+     *
+     * @param {Function} callback - The object to extend radic with
+     * @example
+     * radic.storage.on(function(){
+     *      // do something
+     * }
+     */
     storage.on = function (callback) {
         if (window.addEventListener) {
             window.addEventListener("storage", callback, false);
@@ -3342,15 +3378,32 @@ var _each = function(arr, iterator) {
     });
 
 
-    radic.template = Handlebars;
-    radic.template.get = function(name, data){
-        var template = radic.template.templates[name];
+    /**
+     * @mixin
+     * @alias radic/template
+     */
+    var template = Handlebars;
+
+    /**
+     * Get a template
+     *
+     * @param name
+     * @param data
+     * @returns {*}
+     */
+    template.get = function(name, data){
+        var template = template[name];
         if(radic.isUndefined(data)){
             return template;
         }
         var html = template(data);
         return $($(html).html().trim());
     };
+
+
+    radic.template = template;
+
+
 
 
     radic.template.registerHelper('default', function (value, defaultValue) {
@@ -3364,6 +3417,12 @@ var _each = function(arr, iterator) {
 
 
 
+
+    /**
+     * @memberOf template
+     * @mixin
+     * @alias radic/template/comparisons
+     */
     radic.template.expressionRegistry = function () {
         var isArray = function (value) {
             return Object.prototype.toString.call(value) === '[object Array]';
@@ -3373,6 +3432,12 @@ var _each = function(arr, iterator) {
             this.expressions = [];
         };
 
+        /**
+         * sdf
+         *
+         * @param operator
+         * @param method
+         */
         ExpressionRegistry.prototype.add = function (operator, method) {
             this.expressions[operator] = method;
         };
@@ -3464,7 +3529,7 @@ var _each = function(arr, iterator) {
         return eR;
     }();
 
-    radic.template.expressionRegistry.add('same', function (left, right) { return left === right; });
+    template.expressionRegistry.add('same', function (left, right) { return left === right; });
 
 
 

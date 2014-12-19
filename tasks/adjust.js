@@ -101,7 +101,7 @@ module.exports = function (grunt) {
                 showTasks: ['user'],
                 tasks: ['default', 'showtime', 'header', 'build', 'custom', 'dist', 'lodash', 'packer'],
                 groups: {
-                    'Development': ['watch', 'serve', 'radicjs', 'docs:build'],
+                    'Development': ['watch', 'serve', 'radicjs', 'radicjs:docs'],
                     'Testing': ['test'],
                     'Deploying': ['publish:patch', 'publish:minor', 'publish:major', 'publish:docs']
                 }

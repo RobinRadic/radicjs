@@ -1,6 +1,7 @@
 
 var _ = require('lodash');
 
+var exec = require('child_process').exec;
 module.exports = function(grunt) {
     'use strict';
 
@@ -24,6 +25,18 @@ module.exports = function(grunt) {
             'clean:lodash']);
     });
 
+    grunt.registerTask('build:docs', function(){
+        var taskDone = this.async();
+        grunt.log.writeln('Building docs..');
+        exec('jsdoc -r -d ./docs/api/ ./dist/radic.all.js', function(error, stdout, stderr){
+            if(error) grunt.fail.fatal(error);
+            grunt.log.ok('Docs created.');
+            console.log('jsdoc', error, stdout, stderr);
+            taskDone();
+        })
+    });
+
+    grunt.registerTask('radicjs:docs', 'Create API documentation', ['radicjs:fast', 'build:docs']);
 
     grunt.registerTask('radicjs', 'Builds radic JS. More information use radicjs:help ', function (build) {
         grunt.log.subhead('RadicJS Builder');
@@ -39,6 +52,13 @@ module.exports = function(grunt) {
                 externals: grunt.option('externals') || [],
                 filename: grunt.option('filename')
             }
+        } else if (build === 'fast') {
+            var buildTask = 'build:*:+' + config.builds.all.modules.join(':+');
+            grunt.config.set('radicjs', {
+                filename: grunt.option('filename') || config.builds.all.filename,
+                build: 'all'
+            });
+            grunt.task.run(buildTask);
         } else {
             build = build || config.default;
             var cfg = config.builds[build];

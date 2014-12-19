@@ -2,6 +2,10 @@ define(function(){
 
     function getlodash() {
 
+        /**
+         * @ignore
+         */
+
         // @include _lodash.js
 
         delete lodash.VERSION;
